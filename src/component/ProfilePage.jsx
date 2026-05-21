@@ -67,7 +67,7 @@ export default function ProfilePage() {
     document.body.classList.toggle("no-scroll", sidebarOpen);
   }, [sidebarOpen]);
 
-  // ── Fetch profile ──
+  // ── Fetch profile — GET, token nahi chahiye ──
   const fetchProfile = async (id) => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/society/profile/${id}`);
@@ -79,7 +79,7 @@ export default function ProfilePage() {
     }
   };
 
-  // ── Initial data fetches ──
+  // ── Initial data fetches — GET calls, token nahi chahiye ──
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
     if (user?.id) {
@@ -139,18 +139,26 @@ export default function ProfilePage() {
 
   // ── Follow / unfollow helpers ──
   const societyJoin = async (myId, targetId) => {
+    const token = localStorage.getItem("token");
     const res = await fetch(`${API_BASE_URL}/api/join/join`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
       body: JSON.stringify({ myId, targetId }),
     });
     return res.json();
   };
 
   const societyUnjoin = async (myId, targetId) => {
+    const token = localStorage.getItem("token");
     const res = await fetch(`${API_BASE_URL}/api/join/unjoin`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
       body: JSON.stringify({ myId, targetId }),
     });
     return res.json();
@@ -198,9 +206,13 @@ export default function ProfilePage() {
 
   const handleJoinStudentFromSuggestion = async (item) => {
     const user = JSON.parse(localStorage.getItem("user"));
+    const token = localStorage.getItem("token");
     const res = await fetch(`${API_BASE_URL}/api/student/follow`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
       body: JSON.stringify({ myId: user.societyId, targetId: item._id, followerType: "society" }),
     });
     const data = await res.json();
@@ -212,11 +224,15 @@ export default function ProfilePage() {
 
   const handleToggleStudentFollowing = async (item) => {
     const user = JSON.parse(localStorage.getItem("user"));
+    const token = localStorage.getItem("token");
     const isFollowing = studentFollowing.some((f) => f._id === item._id);
     if (isFollowing) {
       const res = await fetch(`${API_BASE_URL}/api/student/unfollow`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
         body: JSON.stringify({ myId: user.societyId, targetId: item._id }),
       });
       const data = await res.json();
@@ -227,7 +243,10 @@ export default function ProfilePage() {
     } else {
       const res = await fetch(`${API_BASE_URL}/api/student/follow`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
         body: JSON.stringify({ myId: user.societyId, targetId: item._id, followerType: "society" }),
       });
       const data = await res.json();
@@ -248,10 +267,14 @@ export default function ProfilePage() {
 
   const handleUpdatePost = async () => {
     const user = JSON.parse(localStorage.getItem("user"));
+    const token = localStorage.getItem("token");
     try {
       const res = await fetch(`${API_BASE_URL}/api/post/update/${editingPost._id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
         body: JSON.stringify({
           societyId: user.societyId,
           description: editDescription,
@@ -281,10 +304,14 @@ export default function ProfilePage() {
   const handleDeletePost = async (post) => {
     if (!window.confirm("Kya aap sach mein yeh post delete karna chahte hain?")) return;
     const user = JSON.parse(localStorage.getItem("user"));
+    const token = localStorage.getItem("token");
     try {
       const res = await fetch(`${API_BASE_URL}/api/post/delete/${post._id}`, {
         method: "DELETE",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
         body: JSON.stringify({ societyId: user.societyId }),
       });
       const data = await res.json();
