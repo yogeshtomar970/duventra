@@ -124,13 +124,17 @@ export default function SocietyPublicProfile() {
     if (!myId) return alert("Please login first");
     if (myId === societyId) return;
     setJoinLoading(true);
+    const token = localStorage.getItem("token");
     try {
       const endpoint = isFollowing ? "/api/join/unjoin" : "/api/join/join";
       const user = JSON.parse(localStorage.getItem("user"));
       const memberType = user?.societyId ? "society" : "student";
       const res = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
         body: JSON.stringify({ myId, targetId: societyId, memberType }),
       });
       const data = await res.json();
