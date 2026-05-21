@@ -38,6 +38,7 @@ export default function useEditStudentProfile({ setStudent }) {
   const handleSaveProfile = async () => {
     const userId = getUserId();
     if (!userId) return alert("User not found");
+    const token = localStorage.getItem("token");
 
     const formData = new FormData();
     if (selectedImage) formData.append("profilePic", selectedImage);
@@ -47,6 +48,9 @@ export default function useEditStudentProfile({ setStudent }) {
     try {
       const res = await fetch(`${API_BASE_URL}/api/student/update/${userId}`, {
         method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${token}`, // Content-Type mat likho — FormData khud set karta hai
+        },
         body: formData,
       });
       const data = await res.json();
