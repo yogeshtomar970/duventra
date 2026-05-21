@@ -23,6 +23,7 @@ export default function EditNewsModal({ item, userId, onUpdated, onClose }) {
   const handleUpdate = async () => {
     if (!editDesc.trim()) return alert("Description cannot be empty");
     setSaving(true);
+     const token = localStorage.getItem("token");
     try {
       const formData = new FormData();
       formData.append("userId", userId);
@@ -32,6 +33,9 @@ export default function EditNewsModal({ item, userId, onUpdated, onClose }) {
       const res  = await fetch(`${API_BASE_URL}/api/news/update/${item._id}`, {
         method: "PUT",
         body: formData,
+        headers: {
+          "Authorization": `Bearer ${token}`, // Content-Type mat likho — FormData khud set karta hai
+        },
       });
       const data = await res.json();
       if (data.success) {
