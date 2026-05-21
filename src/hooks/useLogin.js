@@ -12,6 +12,7 @@ export default function useLogin() {
   const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
+    
     try {
       const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
@@ -23,10 +24,11 @@ export default function useLogin() {
 
       if (res.ok) {
         alert(result.message);
-
+        
+        localStorage.setItem("token", result.token);
+        
         const userData = { ...result.user, role: result.role };
         localStorage.setItem("user", JSON.stringify(userData));
-
         // SocketContext same-tab mein bhi detect kare isliye manually dispatch
         window.dispatchEvent(new StorageEvent("storage", { key: "user" }));
 
