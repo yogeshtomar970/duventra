@@ -11,6 +11,7 @@ import Signup from "./component/Welcome";
 import StudentSignup from "./component/StudentSignup";
 import SocietySignup from "./component/SocietySignup";
 import Studentprofile from "./component/Profiles";
+import NewsByLink from "./component/NewsByLink";
 
 import UploadPost from "./component/UploadPost";
 import CommentsCard from "./component/Comments";
@@ -80,6 +81,7 @@ function App() {
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/description" element={<DescriptionCard />} />
         <Route path="/commentlink" element={<CommentsCard />} />
+        <Route path="/news/:newsId" element={<NewsByLink />} />   {/* ✅ News share link */}
           <Route path="/post/:postId" element={<PostByLink />} />  {/* ✅ Shared link route */}
         {/* Protected routes — login zaroori */}
         <Route path="/meesage" element={<ProtectedRoute><MessagePage /></ProtectedRoute>} />
