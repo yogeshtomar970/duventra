@@ -26,7 +26,7 @@ export default function PostByLink() {
     return (
       <div style={styles.center}>
         <div style={styles.spinner} />
-        <p style={styles.loadingText}>Post load ho raha hai...</p>
+        <p style={styles.loadingText}>Post loading</p>
       </div>
     );
   }
@@ -35,9 +35,9 @@ export default function PostByLink() {
     return (
       <div style={styles.center}>
         <p style={{ fontSize: 40 }}>😕</p>
-        <p style={styles.errText}>Post nahi mila ya delete ho gaya</p>
+        <p style={styles.errText}>Post not found or deleted</p>
         <button style={styles.btn} onClick={() => navigate("/")}>
-          Home par Jaao
+          Go to Home
         </button>
       </div>
     );
@@ -76,7 +76,7 @@ export default function PostByLink() {
 const styles = {
   page: {
     minHeight: "100vh",
-    background: "#f4f4f8",
+    background: "beige",
     paddingBottom: 40,
   },
   topbar: {
@@ -95,7 +95,7 @@ const styles = {
     border: "none",
     fontSize: 15,
     fontWeight: 600,
-    color: "#6C63FF",
+    color: "#b5651d",
     cursor: "pointer",
     padding: "4px 0",
   },
