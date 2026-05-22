@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, forwardRef } from "react"; // ← forwardRef add kiya
 
 // ── Hooks ──────────────────────────────────────────────
 import useEventCard from "../hooks/useEventCard.js";
@@ -16,7 +16,8 @@ import DescriptionCard from "./DescriptionCard.jsx";
 // ── Card-level CSS ─────────────────────────────────────
 import "../styles/EventCard.css";
 
-export default function EventCard({
+// ← forwardRef se wrap kiya, ref parameter add kiya
+const EventCard = forwardRef(function EventCard({
   profileimg,
   societyname,
   collegename,
@@ -32,7 +33,7 @@ export default function EventCard({
   onDeletePost,
   postElementId,
   highlighted,
-}) {
+}, ref) {  // ← ref yahan aaya
   // ── UI state ───────────────────────────────────────
   const [showPopup, setShowPopup] = useState(false);
   const [showComments, setShowComments] = useState(false);
@@ -66,6 +67,7 @@ export default function EventCard({
 
   return (
     <div
+      ref={ref}  // ← sirf ye line add ki, baaki sab same
       id={postElementId}
       className={`event-card${highlighted ? " event-card--highlight" : ""}`}
     >
@@ -151,4 +153,6 @@ export default function EventCard({
       )}
     </div>
   );
-}
+});
+
+export default EventCard; // ← bahar nikala
