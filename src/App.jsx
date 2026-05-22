@@ -21,10 +21,27 @@ import DescriptionCard from "./component/DescriptionCard";
 import HelpSupport from "./component/HelpSupport";
 import PrivacyPolicy from "./component/PrivacyPolicy";
 
+// ✅ NEW: Install guide import
+import InstallGuide from "./component/InstallGuide";
+
 // ── Guard: login nahi hai toh /login par redirect ──
 function ProtectedRoute({ children }) {
   const user = JSON.parse(localStorage.getItem("user"));
   if (!user) return <Navigate to="/login" replace />;
+  return children;
+}
+
+// ── Guard: pehli baar aane wale users ko install guide dikhao ──
+function InstallGuideGuard({ children }) {
+  const alreadyShown = localStorage.getItem("installGuideShown");
+  // Agar standalone mode mein hai (already installed) toh guide mat dikhao
+  const isStandalone =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true;
+
+  if (!alreadyShown && !isStandalone) {
+    return <Navigate to="/install-guide" replace />;
+  }
   return children;
 }
 
@@ -40,8 +57,18 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Public routes */}
-        <Route path="/" element={<HomePage />} />
+        {/* ✅ Install Guide Route */}
+        <Route path="/install-guide" element={<InstallGuide />} />
+
+        {/* Public routes — install guide check hoga pehle */}
+        <Route
+          path="/"
+          element={
+            <InstallGuideGuard>
+              <HomePage />
+            </InstallGuideGuard>
+          }
+        />
         <Route path="/news" element={<NewsPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
