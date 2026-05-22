@@ -51,7 +51,7 @@ export default function EventFeed({ filters, scrollToPostId }) {
       {loading && <FeedLoader />}
       {!hasMore && (
         <p style={{ textAlign: "center", color: "gray", padding: "1rem" }}>
-          Sab posts dekh liye! 🎉
+         Seen all the posts! 🎉
         </p>
       )}
     </div>
