@@ -20,7 +20,7 @@ import UploadNews from "./component/UploadNews";
 import DescriptionCard from "./component/DescriptionCard";
 import HelpSupport from "./component/HelpSupport";
 import PrivacyPolicy from "./component/PrivacyPolicy";
-
+import PostByLink from "./component/PostByLink";
 // ✅ NEW: Install guide import
 import InstallGuide from "./component/InstallGuide";
 
@@ -80,7 +80,7 @@ function App() {
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/description" element={<DescriptionCard />} />
         <Route path="/commentlink" element={<CommentsCard />} />
-
+          <Route path="/post/:postId" element={<PostByLink />} />  {/* ✅ Shared link route */}
         {/* Protected routes — login zaroori */}
         <Route path="/meesage" element={<ProtectedRoute><MessagePage /></ProtectedRoute>} />
         <Route path="/societyprofile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
