@@ -51,7 +51,7 @@ export default function NewsPage() {
         {loading && !initialLoading && <NewsFeedState loading />}
         {!hasMore && !initialLoading && (
           <p style={{ textAlign: "center", color: "gray", padding: "1rem" }}>
-            Sab news dekh li! 🎉
+            Seen all the News! 🎉
           </p>
         )}
       </div>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef } from "react"; // ← forwardRef add
 import { FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { resolveImg, fmt } from "../newsHelpers.js";
@@ -8,7 +8,7 @@ import ImageViewer     from "./ImageViewer";
 import NewsCardActions from "./NewsCardActions";
 import useNewsCard     from "../hooks/useNewsCard";
 
-export default function NewsCard({ data, highlighted, onDelete }) {
+const NewsCard = forwardRef(function NewsCard({ data, highlighted, onDelete }, ref) { // ← forwardRef + ref
   const navigate = useNavigate();
   const {
     userId, liked, likes, commentCount, likeLoading,
@@ -35,6 +35,7 @@ export default function NewsCard({ data, highlighted, onDelete }) {
   return (
     <>
       <article
+        ref={ref}  // ← sirf ye add kiya
         id={`news-${data._id}`}
         className={`nc-cards${highlighted ? " nc-card--highlight" : ""}`}
       >
@@ -88,4 +89,6 @@ export default function NewsCard({ data, highlighted, onDelete }) {
       {showImage && imgSrc && <ImageViewer src={imgSrc} onClose={() => setShowImage(false)} />}
     </>
   );
-}
+});
+
+export default NewsCard; // ← bahar nikala
