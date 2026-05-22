@@ -122,7 +122,7 @@ const styles = {
     width: 36,
     height: 36,
     border: "4px solid #e0e0e0",
-    borderTop: "4px solid #6C63FF",
+    borderTop: "4px solid #b5651d",
     borderRadius: "50%",
     animation: "spin 0.8s linear infinite",
   },
