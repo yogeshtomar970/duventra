@@ -1,4 +1,4 @@
-import React, { forwardRef, useState } from "react"; // ← forwardRef add
+import React, { forwardRef } from "react"; // ← forwardRef add
 import { FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { resolveImg, fmt } from "../newsHelpers.js";
@@ -18,18 +18,10 @@ const NewsCard = forwardRef(function NewsCard({ data, highlighted, onDelete }, r
     handleLike, handleDelete, canModify,
   } = useNewsCard({ item: data, onDeleted: onDelete });
 
-  const [expanded, setExpanded] = useState(false);
-
   if (!data) return null;
 
   const imgSrc    = resolveImg(data.image);
   const authorImg = resolveImg(data.userImage);
-
-  const CHAR_LIMIT = 200;
-  const isLong = data.description && data.description.length > CHAR_LIMIT;
-  const displayText = isLong && !expanded
-    ? data.description.slice(0, CHAR_LIMIT) + "…"
-    : data.description;
 
   const handleAuthorClick = () => {
     if (!data.recipientId) return;
@@ -75,15 +67,7 @@ const NewsCard = forwardRef(function NewsCard({ data, highlighted, onDelete }, r
         </div>
 
         {/* Description */}
-        <p className="nc-card-desc">{displayText}</p>
-        {isLong && (
-          <button
-            className="nc-read-more-btn"
-            onClick={() => setExpanded(!expanded)}
-          >
-            {expanded ? "Read less ▲" : "Read more ▼"}
-          </button>
-        )}
+        <p className="nc-card-desc">{data.description}</p>
 
         {/* Actions */}
         <NewsCardActions
