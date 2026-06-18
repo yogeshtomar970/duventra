@@ -61,6 +61,7 @@
 /* ── Body ── */
 .pnt-body {
   padding: 6px;
+  padding-bottom: 40px;
 }
 
 /* ── Empty State ── */
