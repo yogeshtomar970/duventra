@@ -1,7 +1,7 @@
 import React from "react";
 import { getAvatar, formatTime } from "../hooks/messageUtils.js";
 import "../styles/MsgChatWindow.css";
-import { FaRecycle, FaTrash } from "react-icons/fa";
+import { FaTrash } from "react-icons/fa";
 
 export default function MsgChatWindow({
   selectedChat,
@@ -109,8 +109,8 @@ export default function MsgChatWindow({
                     <span className="msg-meta">
                       {formatTime(msg.createdAt)}
                       {mine && (
-                        <span className="msg-tick">
-                          {msg._temp ? " ○" : " ✓✓"}
+                        <span className={`msg-tick ${!msg._temp && msg.read ? "msg-tick--read" : ""}`}>
+                          {msg._temp ? " ○" : msg.read ? " ✓✓" : " ✓✓"}
                         </span>
                       )}
                     </span>
