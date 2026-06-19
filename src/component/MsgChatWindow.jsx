@@ -110,7 +110,7 @@ export default function MsgChatWindow({
                       {formatTime(msg.createdAt)}
                       {mine && (
                         <span className={`msg-tick ${!msg._temp && msg.read ? "msg-tick--read" : ""}`}>
-                          {msg._temp ? " ○" : msg.read ? " ✓✓" : " ✓"}
+                          {msg._temp ? " ○" : msg.read ? " ✓✓" : " ✓✓"}
                         </span>
                       )}
                     </span>
