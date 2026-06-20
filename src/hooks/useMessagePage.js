@@ -21,6 +21,7 @@ export default function useMessagePage() {
   const [showSearch, setShowSearch] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState(new Set());
+  const [lastSeenMap, setLastSeenMap] = useState({}); // userId → lastSeen ISO string
   const [loadingInbox, setLoadingInbox] = useState(true);
   const [loadingChat, setLoadingChat] = useState(false);
   const [loadingSearch, setLoadingSearch] = useState(false);
@@ -99,13 +100,22 @@ export default function useMessagePage() {
       if (selectedChatRef.current?.user.userId === fromUserId)
         setIsTyping(false);
     };
-    const onOnline = (uid) => setOnlineUsers((p) => new Set([...p, uid]));
-    const onOffline = (uid) =>
-      setOnlineUsers((p) => {
-        const n = new Set(p);
-        n.delete(uid);
-        return n;
-      });
+    const onOnline = (uid) => {
+      setOnlineUsers((p) => new Set([...p, uid]));
+      // Online hone pe lastSeen hatao (ab active hai)
+      setLastSeenMap((p) => { const n = {...p}; delete n[uid]; return n; });
+    };
+    const onOffline = (uid) => {
+      setOnlineUsers((p) => { const n = new Set(p); n.delete(uid); return n; });
+      // Offline hone pe lastSeen = abhi ka time set karo (DB se real value baad mein aayegi)
+      setLastSeenMap((p) => ({ ...p, [uid]: new Date().toISOString() }));
+    };
+
+    // Page load pe current online users fetch karo
+    socket.emit("get_online_users");
+    socket.on("online_users_list", (list) => {
+      setOnlineUsers(new Set(list));
+    });
     const onMsgDeleted = ({ messageId }) =>
       setMessages((prev) => prev.filter((m) => m._id !== messageId));
 
@@ -134,6 +144,7 @@ export default function useMessagePage() {
       socket.off("user_offline", onOffline);
       socket.off("message_deleted", onMsgDeleted);
       socket.off("messages_read", onMessagesRead);
+      socket.off("online_users_list");
     };
   }, [socket, myId, fetchInbox]);
 
@@ -147,6 +158,10 @@ export default function useMessagePage() {
     setMessages([]);
     setIsTyping(false);
     setLoadingChat(true);
+    // lastSeen DB se aaya tha inbox mein — store karo
+    if (item.user?.lastSeen) {
+      setLastSeenMap((p) => ({ ...p, [item.user.userId]: item.user.lastSeen }));
+    }
     try {
       const res = await fetch(
         `${BASE_URL}/api/message/conversation/${myId}/${item.user.userId}`,{
@@ -325,6 +340,7 @@ export default function useMessagePage() {
     showSearch,
     isTyping,
     onlineUsers,
+    lastSeenMap,
     loadingInbox,
     loadingChat,
     loadingSearch,
