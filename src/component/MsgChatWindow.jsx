@@ -3,12 +3,28 @@ import { getAvatar, formatTime } from "../hooks/messageUtils.js";
 import "../styles/MsgChatWindow.css";
 import { FaTrash } from "react-icons/fa";
 
+const formatLastSeen = (iso) => {
+  if (!iso) return "Offline";
+  const d = new Date(iso);
+  const diffMs = Date.now() - d;
+  const diffMin = Math.floor(diffMs / 60000);
+  if (diffMin < 1)  return "Last seen just now";
+  if (diffMin < 60) return `Last seen ${diffMin}m ago`;
+  const diffHr = Math.floor(diffMin / 60);
+  if (diffHr < 24)  return `Last seen ${diffHr}h ago`;
+  const diffDay = Math.floor(diffHr / 24);
+  if (diffDay === 1) return "Last seen yesterday";
+  if (diffDay < 7)  return `Last seen ${diffDay} days ago`;
+  return `Last seen ${d.toLocaleDateString("en-IN", { day: "numeric", month: "short" })}`;
+};
+
 export default function MsgChatWindow({
   selectedChat,
   messages,
   inputText,
   isTyping,
   onlineUsers,
+  lastSeenMap,
   sending,
   contextMenu,
   socket,
@@ -23,6 +39,8 @@ export default function MsgChatWindow({
   onDeleteMessage,
   onDeleteChatClick,
 }) {
+  const isOnline = onlineUsers.has(selectedChat.user.userId);
+  const lastSeen = lastSeenMap?.[selectedChat.user.userId];
   return (
     <main className="msg-chat-window">
       {/* ── Chat Header ── */}
@@ -36,19 +54,17 @@ export default function MsgChatWindow({
             alt=""
             className="msg-avatar"
           />
-          {onlineUsers.has(selectedChat.user.userId) && (
-            <span className="msg-online-dot" />
-          )}
+          {isOnline && <span className="msg-online-dot" />}
         </div>
         <div className="msg-chat-header-info">
           <h4>{selectedChat.user.name}</h4>
           <p>
             {isTyping ? (
               <span className="msg-typing-label">typing...</span>
-            ) : onlineUsers.has(selectedChat.user.userId) ? (
-              <span className="msg-online-label"></span>
+            ) : isOnline ? (
+              <span className="msg-online-label">Online</span>
             ) : (
-              <span className="msg-offline-label"></span>
+              <span className="msg-offline-label">{formatLastSeen(lastSeen)}</span>
             )}
           </p>
         </div>
@@ -60,7 +76,7 @@ export default function MsgChatWindow({
           onClick={onDeleteChatClick}
           title="Delete conversation"
         >
-          <FaTrash style={{color:"white"}}/>
+          <FaTrash />
         </button>
       </div>
 
@@ -125,7 +141,7 @@ export default function MsgChatWindow({
                           onDeleteMessage(msg._id, mine);
                         }}
                       >
-                         Delete
+                        🗑️ Delete
                       </button>
                     )}
                 </div>
