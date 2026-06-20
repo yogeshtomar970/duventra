@@ -68,9 +68,9 @@ export default function MsgChatWindow({
             )}
           </p>
         </div>
-        {socket?.connected && (
+        {/* {socket?.connected && (
           <span className="msg-connected-dot" title="Connected" />
-        )}
+        )} */}
         <button
           className="msg-delete-chat-btn"
           onClick={onDeleteChatClick}
