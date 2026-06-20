@@ -125,7 +125,7 @@ export default function ForgotPassword() {
         )}
 
         <Link to="/login" className="fp-back-link">
-          ← Login pe wapas jayein
+          ← Back to login
         </Link>
       </div>
     </div>
