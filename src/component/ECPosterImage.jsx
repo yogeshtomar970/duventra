@@ -9,6 +9,8 @@ export default function ECPosterImage({ posterimg }) {
       <img
         src={posterimg}
         alt="event poster"
+        loading="lazy"
+        decoding="async"
         onError={(e) => {
           e.target.style.display = "none";
         }}
