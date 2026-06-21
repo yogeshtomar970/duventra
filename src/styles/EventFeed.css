@@ -13,7 +13,7 @@
 
 @media (min-width: 600px) {
   .event-feed {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(1, 1fr);
     padding-top: 106px;
     gap: 6px;
     padding-left: 6px;
@@ -23,7 +23,7 @@
 
 @media (min-width: 1024px) {
   .event-feed {
-    grid-template-columns: repeat(3, minmax(0, 440px));
+    grid-template-columns: repeat(1, minmax(0, 440px));
     justify-content: center;
     padding-top: 106px;
     padding-left: 6px;
