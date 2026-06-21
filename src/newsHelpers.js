@@ -17,5 +17,12 @@ export const fmt = (iso) =>
 
 export const resolveImg = (url) => {
   if (!url) return null;
-  return url.startsWith("http") ? url : `${API_BASE_URL}/${url.replace(/^\//, "")}`;
+  const fullUrl = url.startsWith("http")
+    ? url
+    : `${API_BASE_URL}/${url.replace(/^\//, "")}`;
+  // Cloudinary URL hai → auto-compress + resize karo, feed ke liye full-res nahi chahiye
+  if (fullUrl.includes("res.cloudinary.com")) {
+    return fullUrl.replace("/upload/", "/upload/f_auto,q_auto,w_800/");
+  }
+  return fullUrl;
 };
