@@ -33,6 +33,8 @@ const EventCard = forwardRef(function EventCard({
   onDeletePost,
   postElementId,
   highlighted,
+  upcoming,
+  lastDate,
 }, ref) {  // ← ref yahan aaya
   // ── UI state ───────────────────────────────────────
   const [showPopup, setShowPopup] = useState(false);
@@ -72,7 +74,19 @@ const EventCard = forwardRef(function EventCard({
       className={`event-card${highlighted ? " event-card--highlight" : ""}`}
     >
       {/* ── Poster image ── */}
-      <ECPosterImage posterimg={posterimg} />
+      <div className="ec-poster-wrap">
+        <ECPosterImage posterimg={posterimg} />
+        {upcoming && (
+          <span className="ec-upcoming-badge">
+            🟢 Upcoming
+            {lastDate && (
+              <span className="ec-upcoming-badge-date">
+                {" "}till {new Date(lastDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+              </span>
+            )}
+          </span>
+        )}
+      </div>
 
       {/* ── Header (avatar, name, time, dot-menu, join) ── */}
       <ECHeader
