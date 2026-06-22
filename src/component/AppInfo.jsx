@@ -8,13 +8,9 @@ import "../styles/AppInfo.css";
 export default function AppInfo() {
   return (
     <div className="hs-app-info">
-      <div className="hs-app-logo">DU Eventra</div>
-      <p>Version 1.0.0 · Made with ❤️ for Delhi University</p>
-      <div className="hs-app-links">
-        <span>Privacy Policy</span>
-        <span>·</span>
-        <span>Terms of Use</span>
-      </div>
+      <div className="hs-app-logo">Duventra</div>
+      <p>Version 1.0.0 · Made in India</p>
+      
     </div>
   );
 }
