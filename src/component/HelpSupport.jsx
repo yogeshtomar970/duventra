@@ -10,7 +10,6 @@ import { faqs, contactOptions } from "../helpData.js";
 // Components
 import HsHeader      from "../component/HsHeader";
 import QuickLinks    from "../component/QuickLinks";
-import FAQSection    from "../component/FAQSection";
 import FeedbackForm  from "../component/FeedbackForm";
 import ContactSection from "../component/ContactSection";
 import AppInfo       from "../component/AppInfo";
@@ -36,16 +35,9 @@ export default function HelpSupport() {
 
       <div className="hs-content">
 
-        <QuickLinks
-          faqs={faqs}
-          activeCategory={activeCategory}
-          setActiveCategory={setActiveCategory}
-        />
+        
 
-        <FAQSection
-          faqs={faqs}
-          activeCategory={activeCategory}
-        />
+        
 
         <FeedbackForm
           feedback={feedback}
