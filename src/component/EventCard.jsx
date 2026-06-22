@@ -78,7 +78,7 @@ const EventCard = forwardRef(function EventCard({
         <ECPosterImage posterimg={posterimg} />
         {upcoming && (
           <span className="ec-upcoming-badge">
-            🟢 Upcoming
+            🟢 New
             {lastDate && (
               <span className="ec-upcoming-badge-date">
                 {" "}till {new Date(lastDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
