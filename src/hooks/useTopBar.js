@@ -34,7 +34,7 @@ export default function useTopBar({ onSearch, onFilterChange }) {
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [showFilter, setShowFilter] = useState(false);
   const [selectedCollege, setSelectedCollege] = useState(null);
-
+  const [upcomingOnly, setUpcomingOnly] = useState(false);
   const dropdownRefs = useRef({});
 
   // Close dropdown on outside click
@@ -78,6 +78,12 @@ export default function useTopBar({ onSearch, onFilterChange }) {
     setSelectedCollege(null);
     onFilterChange?.({ eventTypes: [], college: null });
   };
+  
+  const toggleUpcoming = () => {
+    const next = !upcomingOnly;
+    setUpcomingOnly(next);
+    onFilterChange?.({ eventTypes: selectedOptions, college: selectedCollege, upcoming: next });
+  };
 
   const handleSearchChange = (e) => {
     onSearch?.(e.target.value);
@@ -94,7 +100,7 @@ export default function useTopBar({ onSearch, onFilterChange }) {
     selectedCollege,
     isAllActive,
     dropdownRefs,
-
+   upcomingOnly,
     // Setters
     setSearchActive,
     setShowFilter,
@@ -105,5 +111,6 @@ export default function useTopBar({ onSearch, onFilterChange }) {
     handleCollegeSelect,
     handleClearAll,
     handleSearchChange,
+    toggleUpcoming,
   };
 }
