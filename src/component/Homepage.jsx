@@ -16,6 +16,7 @@ function Homepage() {
     search: "",
     eventTypes: [],
     college: null,
+    upcoming: false,
   });
 
   // Prevent body scroll when sidebar is open
@@ -42,6 +43,7 @@ function Homepage() {
             ...prev,
             eventTypes: data.eventTypes || [],
             college: data.college || null,
+            upcoming: data.upcoming || false,
           }))
         }
       />
