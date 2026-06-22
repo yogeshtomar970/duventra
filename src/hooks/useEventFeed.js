@@ -18,7 +18,8 @@ export default function useEventFeed({ filters, scrollToPostId }) {
     if (loading || !hasMore) return;
     setLoading(true);
     try {
-      const res  = await fetch(`${API_BASE_URL}/api/post/all?page=${pageNum}&limit=${LIMIT}`);
+      const upcomingParam = filters?.upcoming ? "&upcoming=true" : "";
+      const res  = await fetch(`${API_BASE_URL}/api/post/all?page=${pageNum}&limit=${LIMIT}${upcomingParam}`);
       const data = await res.json();
       const newPosts = data.posts || [];
 
@@ -30,12 +31,16 @@ export default function useEventFeed({ filters, scrollToPostId }) {
       setLoading(false);
       setInitialLoading(false);
     }
-  }, [loading, hasMore]);
+  }, [loading, hasMore, filters?.upcoming]);
 
-  // ── Pehli baar load ───────────────────────────────────
+  // ── Pehli baar load + jab "upcoming" filter toggle ho dobara fetch karo ──
   useEffect(() => {
+    setPosts([]);
+    setPage(1);
+    setHasMore(true);
+    setInitialLoading(true);
     fetchPosts(1);
-  }, []);
+  }, [filters?.upcoming]);
 
   // ── Filter apply karo ─────────────────────────────────
   useEffect(() => {
@@ -119,6 +124,12 @@ export default function useEventFeed({ filters, scrollToPostId }) {
     return post.image;
   };
 
+  // Event abhi "Upcoming" hai ya nahi — lastDate abhi tak nahi aayi
+  const isUpcoming = (post) => {
+    if (!post.lastDate) return false;
+    return new Date(post.lastDate) >= new Date();
+  };
+
   return {
     filteredPosts,
     loading,
@@ -127,6 +138,7 @@ export default function useEventFeed({ filters, scrollToPostId }) {
     highlightId,
     getProfileImg,
     getPosterImg,
+    isUpcoming,
     lastPostRef,    // ← ye bhi return karo
     hasMore,
   };
