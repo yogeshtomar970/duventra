@@ -14,6 +14,7 @@ export default function EventFeed({ filters, scrollToPostId }) {
     highlightId,
     getProfileImg,
     getPosterImg,
+    isUpcoming,
     lastPostRef,     // ← added
     hasMore,         // ← added
   } = useEventFeed({ filters, scrollToPostId });
@@ -43,6 +44,8 @@ export default function EventFeed({ filters, scrollToPostId }) {
             formLink={post.formLink}
             views={post.views}
             postId={post._id}
+            upcoming={isUpcoming(post)}
+            lastDate={post.lastDate}
           />
         );
       })}
