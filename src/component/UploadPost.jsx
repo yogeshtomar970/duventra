@@ -199,6 +199,7 @@ export default function UploadPost() {
             <input
               type="date"
               value={startDate}
+              min={new Date().toISOString().split("T")[0]}
               onChange={(e) => setStartDate(e.target.value)}
             />
           </div>
@@ -209,7 +210,7 @@ export default function UploadPost() {
             <input
               type="date"
               value={lastDate}
-              min={startDate || undefined}
+              min={startDate || new Date().toISOString().split("T")[0]}
               onChange={(e) => setLastDate(e.target.value)}
             />
           </div>
