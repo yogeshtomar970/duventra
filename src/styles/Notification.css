@@ -301,3 +301,80 @@
     box-shadow: 4px 0 20px rgba(0, 0, 0, 0.06);
   }
 }
+
+/* ── Select Mode ─────────────────────────────────────── */
+.notif-select-header {
+  justify-content: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.notif-select-count {
+  font-size: 15px;
+  font-weight: 600;
+  color: white;
+  margin-right: auto;
+}
+.notif-hdr-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+.notif-hdr-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255,255,255,0.18);
+  border: none;
+  color: white;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 6px 11px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.18s;
+  font-family: inherit;
+}
+.notif-hdr-btn:hover {
+  background: rgba(255,255,255,0.3);
+}
+.notif-hdr-btn--delete {
+  background: rgba(220, 38, 38, 0.7);
+}
+.notif-hdr-btn--delete:hover {
+  background: rgba(220, 38, 38, 0.9);
+}
+
+/* Card select state */
+.notification-card.notif-selected {
+  background: #fdf0e6;
+  border-color: #b5651d;
+}
+.select-mode-active .notification-card {
+  cursor: pointer;
+}
+
+/* Checkbox circle */
+.notif-checkbox {
+  display: flex;
+  align-items: center;
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+.notif-check-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: white;
+  transition: background 0.15s, border-color 0.15s;
+  background: white;
+}
+.notif-check-circle.checked {
+  background: #b5651d;
+  border-color: #b5651d;
+}
