@@ -1,53 +1,55 @@
 import React from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { FaHome, FaUser, FaEnvelope } from "react-icons/fa";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faNewspaper } from "@fortawesome/free-solid-svg-icons";
 
-/**
- * NavBar
- * Bottom navigation bar with icons + centre FAB.
- * Message and Profile require login — redirect to /login if not logged in.
- */
 export default function NavBarlinksbottom({ profilePath, menuOpen, onFabClick }) {
   const navClass = ({ isActive }) => (isActive ? "icon active" : "icon");
   const navigate = useNavigate();
+  const location = useLocation();
 
   const user = JSON.parse(localStorage.getItem("user")) || null;
 
-  // Guard: agar login nahi toh /login par bhejo
-  const guardedNavigate = (e, path) => {
-    if (!user) {
+  // Same path pe click → reload, warna normal navigate (with login guard)
+  const handleClick = (e, path, requiresLogin = false) => {
+    if (requiresLogin && !user) {
       e.preventDefault();
       navigate("/login");
+      return;
     }
-    // agar login hai toh NavLink apna kaam kare
+    const currentPath = location.pathname;
+    const isSame = path === "/"
+      ? currentPath === "/"
+      : currentPath === path || currentPath.startsWith(path);
+    if (isSame) {
+      e.preventDefault();
+      window.location.reload();
+    }
   };
 
   return (
     <nav className="bottom-nav">
-      <NavLink to="/" end className={navClass}>
+      <NavLink to="/" end className={navClass} onClick={(e) => handleClick(e, "/")}>
         <FaHome />
       </NavLink>
 
-      <NavLink to="/news" className={navClass}>
+      <NavLink to="/news" className={navClass} onClick={(e) => handleClick(e, "/news")}>
         <FontAwesomeIcon icon={faNewspaper} />
       </NavLink>
 
-      {/* Message — login required */}
       <NavLink
         to="/meesage"
         className={navClass}
-        onClick={(e) => guardedNavigate(e, "/meesage")}
+        onClick={(e) => handleClick(e, "/meesage", true)}
       >
         <FaEnvelope />
       </NavLink>
 
-      {/* Profile — login required */}
       <NavLink
         to={profilePath}
         className={navClass}
-        onClick={(e) => guardedNavigate(e, profilePath)}
+        onClick={(e) => handleClick(e, profilePath, true)}
       >
         <FaUser />
       </NavLink>
