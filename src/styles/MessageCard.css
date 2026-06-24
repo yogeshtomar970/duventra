@@ -5,20 +5,20 @@
 
 /* ── CSS variables (tokens) ── */
 :root {
-  --msg-primary:       #5a0fc8;
-  --msg-primary-dark:  #4009a0;
+  --msg-primary:       #b5651d;
+  --msg-primary-dark:  #b5651d;
   --msg-primary-light: #f3eeff;
-  --msg-header-bg:     linear-gradient(135deg, #5a0fc8, #7c3aed);
+  --msg-header-bg:     #b5651d;
   --msg-sidebar-bg:    #fdfdff;
   --msg-bg:            #f7f5ff;
   --msg-bubble-in:     #ffffff;
-  --msg-bubble-out:    linear-gradient(135deg, #5a0fc8, #7c3aed);
+  --msg-bubble-out:    #b5651d;
   --msg-border:        #ede9fe;
   --msg-text-dark:     #1a1a2e;
   --msg-text-muted:    #9ca3af;
   --msg-online:        #22c55e;
   --msg-radius:        18px;
-  --nav-height:        64px;
+  --nav-height:        60px;
 }
 
 /* ── Page wrapper ── */
