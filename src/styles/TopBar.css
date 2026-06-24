@@ -1,3 +1,11 @@
+:root {
+  --navbar-h: 54px;
+  --topbar-h: 41px;
+  --feed-top: calc(var(--navbar-h) + var(--topbar-h));
+}
+
+
+
 .topbar-container {
   background: #f1f1bc;
   backdrop-filter: blur(10px);

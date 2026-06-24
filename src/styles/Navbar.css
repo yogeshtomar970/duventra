@@ -1,6 +1,11 @@
 /* ══════════════════════════════════════
    Navbar.css — header bar only
    ══════════════════════════════════════ */
+:root {
+  --navbar-h: 54px;
+  --topbar-h: 41px;
+  --feed-top: calc(var(--navbar-h) + var(--topbar-h));
+}
 
 .navbar {
   background: #b5651d;
