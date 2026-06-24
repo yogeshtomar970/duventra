@@ -1,2 +1,14 @@
 *, *::before, *::after { box-sizing: border-box; }
 body { margin: 0; }
+
+:root {
+  --navbar-h: 54px;
+  --topbar-h: 41px;
+  --feed-top: calc(var(--navbar-h) + var(--topbar-h));
+}
+
+@media (max-width: 380px) {
+  :root {
+    --navbar-h: 50px;
+  }
+}

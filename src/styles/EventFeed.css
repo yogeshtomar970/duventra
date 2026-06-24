@@ -1,10 +1,9 @@
-/* ── Feed grid ── */
 .event-feed {
   display: grid;
   grid-template-columns: 1fr;
   gap: 6px;
   padding: 6px 6px;
-  padding-top: 106px;
+  padding-top: calc(var(--feed-top) + 10px);
   padding-bottom: 65px;
   justify-items: center;
   box-sizing: border-box;
@@ -14,7 +13,7 @@
 @media (min-width: 600px) {
   .event-feed {
     grid-template-columns: repeat(1, 1fr);
-    padding-top: 106px;
+    padding-top: calc(var(--feed-top) + 10px);
     gap: 6px;
     padding-left: 6px;
     padding-right: 6px;
@@ -25,7 +24,7 @@
   .event-feed {
     grid-template-columns: repeat(1, minmax(0, 440px));
     justify-content: center;
-    padding-top: 106px;
+    padding-top: calc(var(--feed-top) + 10px);
     padding-left: 6px;
     padding-right: 6px;
     gap: 6px;
@@ -37,7 +36,7 @@
 @media (max-width: 380px) {
   .event-feed {
     padding: 8px;
-    padding-top: 106px;
+    padding-top: calc(var(--feed-top) + 10px);
     padding-bottom: 65px;
     gap: 10px;
   }

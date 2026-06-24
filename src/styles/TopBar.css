@@ -5,7 +5,7 @@
   padding: 8px 12px;
   width: 100%;
   position: fixed;
-  top: 54px;
+  top: var(--navbar-h);
   left: 0;
   z-index: 900;
   box-sizing: border-box;
@@ -345,7 +345,7 @@
 @media (max-width: 580px) {
   .dropdown {
     position: fixed;
-    top: 108px;
+    top: calc(var(--navbar-h) + var(--topbar-h) + 4px);
     left: 10px;
     right: 10px;
     width: auto;
