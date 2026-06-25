@@ -25,6 +25,7 @@
   margin-bottom: 12px;
   box-shadow: 0 2px 14px rgba(0,0,0,0.06);
   border: 1px solid rgba(0,0,0,0.04);
+  width: 100%;
 }
 
 .skeleton-header {
