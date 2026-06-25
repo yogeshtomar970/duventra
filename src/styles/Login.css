@@ -6,11 +6,16 @@
 .logincontainer {
   width: 100%;
   min-height: 100vh;
-  background:
-    beige;
+  background: beige;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 20px;
   box-sizing: border-box;
+  animation: loginPageIn 0.4s ease both;
+}
+
+@keyframes loginPageIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
