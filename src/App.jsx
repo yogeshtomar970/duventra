@@ -71,28 +71,28 @@ function App() {
             </InstallGuideGuard>
           }
         />
-        <Route path="/news" element={<NewsPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/studentsignup" element={<StudentSignup />} />
-        <Route path="/societysignup" element={<SocietySignup />} />
-        <Route path="/society-profile" element={<SocietyPublicProfile />} />
-        <Route path="/student-profile" element={<StudentPublicProfile />} />
-        <Route path="/help" element={<HelpSupport />} />
-        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-        <Route path="/description" element={<DescriptionCard />} />
-        <Route path="/commentlink" element={<CommentsCard />} />
-        <Route path="/news/:newsId" element={<NewsByLink />} />   {/* ✅ News share link */}
-          <Route path="/post/:postId" element={<PostByLink />} />  {/* ✅ Shared link route */}
+        <Route path="/news" element={<div className="page-enter"><NewsPage /></div>} />
+        <Route path="/login" element={<div className="page-enter"><Login /></div>} />
+        <Route path="/forgot-password" element={<div className="page-enter"><ForgotPassword /></div>} />
+        <Route path="/signup" element={<div className="page-enter"><Signup /></div>} />
+        <Route path="/studentsignup" element={<div className="page-enter"><StudentSignup /></div>} />
+        <Route path="/societysignup" element={<div className="page-enter"><SocietySignup /></div>} />
+        <Route path="/society-profile" element={<div className="page-enter"><SocietyPublicProfile /></div>} />
+        <Route path="/student-profile" element={<div className="page-enter"><StudentPublicProfile /></div>} />
+        <Route path="/help" element={<div className="page-enter"><HelpSupport /></div>} />
+        <Route path="/privacy-policy" element={<div className="page-enter"><PrivacyPolicy /></div>} />
+        <Route path="/description" element={<div className="page-enter"><DescriptionCard /></div>} />
+        <Route path="/commentlink" element={<div className="page-enter"><CommentsCard /></div>} />
+        <Route path="/news/:newsId" element={<div className="page-enter"><NewsByLink /></div>} />   {/* ✅ News share link */}
+          <Route path="/post/:postId" element={<div className="page-enter"><PostByLink /></div>} />  {/* ✅ Shared link route */}
         {/* Protected routes — login zaroori */}
-        <Route path="/meesage" element={<ProtectedRoute><MessagePage /></ProtectedRoute>} />
-        <Route path="/societyprofile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-        <Route path="/studentprofile" element={<ProtectedRoute><Studentprofile /></ProtectedRoute>} />
-        <Route path="/notification" element={<ProtectedRoute><Notification /></ProtectedRoute>} />
-        <Route path="/societyprofilelink" element={<ProtectedRoute><SocietyProfilePageLink /></ProtectedRoute>} />
-        <Route path="/upload" element={<ProtectedRoute><UploadPost /></ProtectedRoute>} />
-        <Route path="/upload-news" element={<ProtectedRoute><UploadNews /></ProtectedRoute>} />
+        <Route path="/meesage" element={<ProtectedRoute><div className="page-enter"><MessagePage /></div></ProtectedRoute>} />
+        <Route path="/societyprofile" element={<ProtectedRoute><div className="page-enter"><ProfilePage /></div></ProtectedRoute>} />
+        <Route path="/studentprofile" element={<ProtectedRoute><div className="page-enter"><Studentprofile /></div></ProtectedRoute>} />
+        <Route path="/notification" element={<ProtectedRoute><div className="page-enter"><Notification /></div></ProtectedRoute>} />
+        <Route path="/societyprofilelink" element={<ProtectedRoute><div className="page-enter"><SocietyProfilePageLink /></div></ProtectedRoute>} />
+        <Route path="/upload" element={<ProtectedRoute><div className="page-enter"><UploadPost /></div></ProtectedRoute>} />
+        <Route path="/upload-news" element={<ProtectedRoute><div className="page-enter"><UploadNews /></div></ProtectedRoute>} />
       </Routes>
     </Router>
   );
