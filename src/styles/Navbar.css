@@ -21,6 +21,12 @@
   z-index: 1000;
   box-sizing: border-box;
   box-shadow: 0 2px 12px rgba(14, 19, 47, 0.28);
+  animation: navbarSlideDown 0.4s cubic-bezier(0.34,1.1,0.64,1) both;
+}
+
+@keyframes navbarSlideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
 }
 
 /* Hamburger */
@@ -79,7 +85,15 @@
   transition: opacity 0.2s, transform 0.15s;
   box-shadow: 0 2px 8px rgba(246, 2, 75, 0.35);
   white-space: nowrap;
+  animation: uploadPulse 2s ease 3;
 }
+
+@keyframes uploadPulse {
+  0%   { box-shadow: 0 2px 8px rgba(246,2,75,0.35); }
+  50%  { box-shadow: 0 2px 8px rgba(246,2,75,0.35), 0 0 0 8px rgba(246,2,75,0); }
+  100% { box-shadow: 0 2px 8px rgba(246,2,75,0.35); }
+}
+
 .uploadbtn:hover  { opacity: 0.88; transform: scale(1.03); }
 .uploadbtn:active { transform: scale(0.97); }
 
