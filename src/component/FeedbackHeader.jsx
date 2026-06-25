@@ -19,7 +19,7 @@ export default function FeedbackHeader({ onClose }) {
         </div>
         <div>
           <h3 className="feedback-title">Share Feedback</h3>
-          <p className="feedback-subtitle">Help us improve DU Eventra</p>
+          <p className="feedback-subtitle">Help us improve Duventra</p>
         </div>
       </div>
 
