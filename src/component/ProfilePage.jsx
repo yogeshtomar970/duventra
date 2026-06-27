@@ -13,8 +13,7 @@ import EditProfileModal from "../component/EditProfileModal";
 import EditPostModal from "../component/EditPostModal";
 import CommitteeCard from "../component/CommitteeCard";
 import CommitteeModal from "../component/CommitteeModal";
-import SearchHeader from "../component/SearchHeader";
-import SocietyMemberCard from "../component/SocietyMemberCard";
+import SocietyConnectionsPanel from "../component/SocietyMemberCard";
 import PostNewsTab from "../component/PostNewsTab";
 
 export default function ProfilePage() {
@@ -48,26 +47,13 @@ export default function ProfilePage() {
   const [studentSuggestions, setStudentSuggestions] = useState([]);
   const [studentFollowing, setStudentFollowing] = useState([]);
 
-  // ── Search state ──
-  const [memberSearch, setMemberSearch] = useState("");
-  const [memberSearchOpen, setMemberSearchOpen] = useState(false);
-  const [stuMemberSearch, setStuMemberSearch] = useState("");
-  const [stuMemberSearchOpen, setStuMemberSearchOpen] = useState(false);
-  const [followingSearch, setFollowingSearch] = useState("");
-  const [followingSearchOpen, setFollowingSearchOpen] = useState(false);
-  const [suggSearch, setSuggSearch] = useState("");
-  const [suggSearchOpen, setSuggSearchOpen] = useState(false);
-  const [stuSuggSearch, setStuSuggSearch] = useState("");
-  const [stuSuggSearchOpen, setStuSuggSearchOpen] = useState(false);
-  const [stuFollowSearch, setStuFollowSearch] = useState("");
-  const [stuFollowSearchOpen, setStuFollowSearchOpen] = useState(false);
 
   // ── Sidebar scroll lock ──
   useEffect(() => {
     document.body.classList.toggle("no-scroll", sidebarOpen);
   }, [sidebarOpen]);
 
-  // ── Fetch profile ──
+  // ── Fetch profile — GET, token nahi chahiye ──
   const fetchProfile = async (id) => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/society/profile/${id}`);
@@ -79,7 +65,7 @@ export default function ProfilePage() {
     }
   };
 
-  // ── Initial data fetches ──
+  // ── Initial data fetches — GET calls, token nahi chahiye ──
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
     if (user?.id) {
@@ -96,18 +82,28 @@ export default function ProfilePage() {
     if (!user?.societyId) return;
     fetch(`${API_BASE_URL}/api/join/suggestions/${user.societyId}`)
       .then((r) => r.json())
-      .then((data) => { if (data.success) setSuggestions(data.data); })
+      .then((data) => {
+        if (data.success) setSuggestions(data.data);
+      })
       .catch(() => {});
     fetch(`${API_BASE_URL}/api/join/following/${user.societyId}`)
       .then((r) => r.json())
-      .then((data) => { if (data.success) setFollowing(data.data); })
+      .then((data) => {
+        if (data.success) setFollowing(data.data);
+      })
       .catch(() => {});
     fetch(`${API_BASE_URL}/api/join/members/${user.societyId}`)
       .then((r) => r.json())
       .then((data) => {
         if (data.success) {
-          setMembers(data.data.filter((m) => !m.memberType || m.memberType === "society"));
-          setStudentMembers(data.data.filter((m) => m.memberType === "student"));
+          setMembers(
+            data.data.filter(
+              (m) => !m.memberType || m.memberType === "society",
+            ),
+          );
+          setStudentMembers(
+            data.data.filter((m) => m.memberType === "student"),
+          );
         }
       })
       .catch(() => {});
@@ -115,7 +111,6 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
-    // FIX 1: user.societyId use karo — yahi followedBy mein store hota hai
     if (!user?.societyId) return;
     fetch(`${API_BASE_URL}/api/student/suggestions/${user.societyId}`)
       .then((r) => r.json())
@@ -133,17 +128,22 @@ export default function ProfilePage() {
     fetch(`${API_BASE_URL}/api/post/all`)
       .then((r) => r.json())
       .then((data) =>
-        setMyPosts(data.posts.filter((p) => p.societyName === society.societyName))
+        setMyPosts(
+          data.posts.filter((p) => p.societyName === society.societyName),
+        ),
       )
       .catch(() => {});
   }, [society]);
 
-  // ── Society follow / unfollow helpers ──
+  // ── Follow / unfollow helpers ──
   const societyJoin = async (myId, targetId) => {
     const token = localStorage.getItem("token");
     const res = await fetch(`${API_BASE_URL}/api/join/join`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify({ myId, targetId }),
     });
     return res.json();
@@ -153,7 +153,10 @@ export default function ProfilePage() {
     const token = localStorage.getItem("token");
     const res = await fetch(`${API_BASE_URL}/api/join/unjoin`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify({ myId, targetId }),
     });
     return res.json();
@@ -170,8 +173,8 @@ export default function ProfilePage() {
 
   const handleToggleFollowing = async (item) => {
     const user = JSON.parse(localStorage.getItem("user"));
-    const isJoined = following.some((f) => f.societyId === item.societyId);
-    if (isJoined) {
+    const isFollowing = following.some((f) => f.societyId === item.societyId);
+    if (isFollowing) {
       const data = await societyUnjoin(user.societyId, item.societyId);
       if (!data.joined) {
         setFollowing((p) => p.filter((f) => f.societyId !== item.societyId));
@@ -188,42 +191,26 @@ export default function ProfilePage() {
 
   const handleToggleMemberFollow = async (item) => {
     const user = JSON.parse(localStorage.getItem("user"));
-    const isJoined = following.some((f) => f.societyId === item.societyId);
-    if (isJoined) {
+    const isFollowing = following.some((f) => f.societyId === item.societyId);
+    if (isFollowing) {
       const data = await societyUnjoin(user.societyId, item.societyId);
-      if (!data.joined) setFollowing((p) => p.filter((f) => f.societyId !== item.societyId));
+      if (!data.joined)
+        setFollowing((p) => p.filter((f) => f.societyId !== item.societyId));
     } else {
       const data = await societyJoin(user.societyId, item.societyId);
       if (data.joined) setFollowing((p) => [...p, item]);
     }
   };
 
-  // ── Student follow / unfollow helpers ──
-  const studentFollowAPI = async (myId, targetId) => {
+  const handleJoinStudentFromSuggestion = async (item) => {
+    const user = JSON.parse(localStorage.getItem("user"));
     const token = localStorage.getItem("token");
     const res = await fetch(`${API_BASE_URL}/api/student/follow`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      // FIX 2: targetId.toString() — string store hona chahiye, ObjectId nahi
-      body: JSON.stringify({ myId, targetId: targetId.toString(), followerType: "society" }),
+      body: JSON.stringify({ myId: user.societyId, targetId: item._id.toString(), followerType: "society" }),
     });
-    return res.json();
-  };
-
-  const studentUnfollowAPI = async (myId, targetId) => {
-    const token = localStorage.getItem("token");
-    const res = await fetch(`${API_BASE_URL}/api/student/unfollow`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      // FIX 3: targetId.toString() — string se hi delete match hoga
-      body: JSON.stringify({ myId, targetId: targetId.toString() }),
-    });
-    return res.json();
-  };
-
-  const handleJoinStudentFromSuggestion = async (item) => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    const data = await studentFollowAPI(user.societyId, item._id);
+    const data = await res.json();
     if (data.followed) {
       setStudentSuggestions((p) => p.filter((s) => s._id !== item._id));
       setStudentFollowing((p) => [...p, item]);
@@ -232,15 +219,26 @@ export default function ProfilePage() {
 
   const handleToggleStudentFollowing = async (item) => {
     const user = JSON.parse(localStorage.getItem("user"));
+    const token = localStorage.getItem("token");
     const isJoined = studentFollowing.some((f) => f._id === item._id);
     if (isJoined) {
-      const data = await studentUnfollowAPI(user.societyId, item._id);
+      const res = await fetch(`${API_BASE_URL}/api/student/unfollow`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ myId: user.societyId, targetId: item._id.toString() }),
+      });
+      const data = await res.json();
       if (!data.followed) {
         setStudentFollowing((p) => p.filter((f) => f._id !== item._id));
         setStudentSuggestions((p) => [...p, item]);
       }
     } else {
-      const data = await studentFollowAPI(user.societyId, item._id);
+      const res = await fetch(`${API_BASE_URL}/api/student/follow`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ myId: user.societyId, targetId: item._id.toString(), followerType: "society" }),
+      });
+      const data = await res.json();
       if (data.followed) {
         setStudentSuggestions((p) => p.filter((s) => s._id !== item._id));
         setStudentFollowing((p) => [...p, item]);
@@ -260,22 +258,32 @@ export default function ProfilePage() {
     const user = JSON.parse(localStorage.getItem("user"));
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`${API_BASE_URL}/api/post/update/${editingPost._id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          societyId: user.societyId,
-          description: editDescription,
-          formLink: editFormLink,
-        }),
-      });
+      const res = await fetch(
+        `${API_BASE_URL}/api/post/update/${editingPost._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            societyId: user.societyId,
+            description: editDescription,
+            formLink: editFormLink,
+          }),
+        },
+      );
       const data = await res.json();
       if (data.success) {
         alert("Post updated successfully!");
         setMyPosts((p) =>
           p.map((post) =>
             post._id === editingPost._id
-              ? { ...post, description: editDescription, formLink: editFormLink }
+              ? {
+                  ...post,
+                  description: editDescription,
+                  formLink: editFormLink,
+                }
               : post,
           ),
         );
@@ -290,13 +298,17 @@ export default function ProfilePage() {
   };
 
   const handleDeletePost = async (post) => {
-    if (!window.confirm("Kya aap sach mein yeh post delete karna chahte hain?")) return;
+    if (!window.confirm("Kya aap sach mein yeh post delete karna chahte hain?"))
+      return;
     const user = JSON.parse(localStorage.getItem("user"));
     const token = localStorage.getItem("token");
     try {
       const res = await fetch(`${API_BASE_URL}/api/post/delete/${post._id}`, {
         method: "DELETE",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ societyId: user.societyId }),
       });
       const data = await res.json();
@@ -311,9 +323,6 @@ export default function ProfilePage() {
     }
   };
 
-  // ── Filter helpers ──
-  const filterByName = (list, key, query) =>
-    list.filter((i) => i[key]?.toLowerCase().includes(query.toLowerCase()));
 
   if (loading) return <h2 className="pp-loading">Loading...</h2>;
 
@@ -325,7 +334,10 @@ export default function ProfilePage() {
 
       <div className="profile-container">
         {/* ── Profile Card ── */}
-        <ProfileCard society={society} onEditClick={() => setShowEditProfileModal(true)} />
+        <ProfileCard
+          society={society}
+          onEditClick={() => setShowEditProfileModal(true)}
+        />
 
         {/* ── Edit Profile Modal ── */}
         {showEditProfileModal && (
@@ -343,7 +355,10 @@ export default function ProfilePage() {
             editFormLink={editFormLink}
             setEditFormLink={setEditFormLink}
             onSave={handleUpdatePost}
-            onClose={() => { setShowEditPostModal(false); setEditingPost(null); }}
+            onClose={() => {
+              setShowEditPostModal(false);
+              setEditingPost(null);
+            }}
           />
         )}
 
@@ -361,139 +376,44 @@ export default function ProfilePage() {
             onSocietyUpdate={(updated) => setSociety(updated)}
           />
         )}
-
-        <div
-          className="sp-card"
-          style={{ display: "flex", flexDirection: "column", padding: "1.5rem", gap: "1rem", gridTemplateColumns: "unset", marginTop: 8, marginBottom: 4 }}
-        >
-          <div className="gradient-card">
-            {/* Society Members */}
-            <SearchHeader
-              title={`Member (${filterByName(members, "societyName", memberSearch).length})`}
-              searchOpen={memberSearchOpen} onToggleSearch={setMemberSearchOpen}
-              searchValue={memberSearch} onSearchChange={setMemberSearch} onClear={() => setMemberSearch("")}
-            />
-            <div className="horizontal-scroll">
-              {filterByName(members, "societyName", memberSearch).length === 0 ? (
-                <p>No members found</p>
-              ) : (
-                filterByName(members, "societyName", memberSearch).map((item, i) => (
-                  <SocietyMemberCard key={i} item={item}
-                    isJoined={following.some((f) => f.societyId === item.societyId)}
-                    onJoin={handleToggleMemberFollow}
-                    onCardClick={() => navigate(`/society-profile?id=${item.societyId}`)}
-                  />
-                ))
-              )}
-            </div>
-
-            {/* Student Members */}
-            <SearchHeader
-              title={`Student Members (${filterByName(studentMembers, "name", stuMemberSearch).length})`}
-              searchOpen={stuMemberSearchOpen} onToggleSearch={setStuMemberSearchOpen}
-              searchValue={stuMemberSearch} onSearchChange={setStuMemberSearch} onClear={() => setStuMemberSearch("")}
-            />
-            <div className="horizontal-scroll">
-              {filterByName(studentMembers, "name", stuMemberSearch).length === 0 ? (
-                <p>No student members found</p>
-              ) : (
-                filterByName(studentMembers, "name", stuMemberSearch).map((item, i) => (
-                  <SocietyMemberCard key={i} item={item} isStudent={true}
-                    isJoined={studentFollowing.some((f) => f._id === item._id)}
-                    onJoin={handleToggleStudentFollowing}
-                    onCardClick={() => navigate(`/student-profile?id=${item.userId}`)}
-                  />
-                ))
-              )}
-            </div>
-
-            {/* Society Following */}
-            <SearchHeader
-              title={`Society Following (${filterByName(following, "societyName", followingSearch).length})`}
-              searchOpen={followingSearchOpen} onToggleSearch={setFollowingSearchOpen}
-              searchValue={followingSearch} onSearchChange={setFollowingSearch} onClear={() => setFollowingSearch("")}
-            />
-            <div className="horizontal-scroll">
-              {filterByName(following, "societyName", followingSearch).length === 0 ? (
-                <p>No following found</p>
-              ) : (
-                filterByName(following, "societyName", followingSearch).map((item, i) => (
-                  <SocietyMemberCard key={i} item={item} isJoined={true}
-                    onJoin={handleToggleFollowing}
-                    onCardClick={() => navigate(`/society-profile?id=${item.societyId}`)}
-                  />
-                ))
-              )}
-            </div>
-            
-            <SearchHeader
-              title={`Student Following (${filterByName(studentFollowing, "name", stuFollowSearch).length})`}
-              searchOpen={stuFollowSearchOpen} onToggleSearch={setStuFollowSearchOpen}
-              searchValue={stuFollowSearch} onSearchChange={setStuFollowSearch} onClear={() => setStuFollowSearch("")}
-            />
-            <div className="horizontal-scroll">
-              {filterByName(studentFollowing, "name", stuFollowSearch).length === 0 ? (
-                <p>No students found</p>
-              ) : (
-                filterByName(studentFollowing, "name", stuFollowSearch).map((item, i) => (
-                  <SocietyMemberCard key={i} item={item} isStudent={true} isJoined={true}
-                    onJoin={handleToggleStudentFollowing}
-                    onCardClick={() => navigate(`/student-profile?id=${item.userId}`)}
-                  />
-                ))
-              )}
-            </div>
-            
-            {/* Society Suggestions */}
-            <SearchHeader
-              title={`Society Suggestion (${filterByName(suggestions, "societyName", suggSearch).length})`}
-              searchOpen={suggSearchOpen} onToggleSearch={setSuggSearchOpen}
-              searchValue={suggSearch} onSearchChange={setSuggSearch} onClear={() => setSuggSearch("")}
-            />
-            <div className="horizontal-scroll">
-              {filterByName(suggestions, "societyName", suggSearch).length === 0 ? (
-                <p>No suggestions found</p>
-              ) : (
-                filterByName(suggestions, "societyName", suggSearch).map((item, i) => (
-                  <SocietyMemberCard key={i} item={item} isJoined={false}
-                    onJoin={handleJoinFromSuggestion}
-                    onCardClick={() => navigate(`/society-profile?id=${item.societyId}`)}
-                  />
-                ))
-              )}
-            </div>
-
-            {/* Student Suggestions */}
-            <SearchHeader
-              title={`Student Suggestions (${filterByName(studentSuggestions, "name", stuSuggSearch).length})`}
-              searchOpen={stuSuggSearchOpen} onToggleSearch={setStuSuggSearchOpen}
-              searchValue={stuSuggSearch} onSearchChange={setStuSuggSearch} onClear={() => setStuSuggSearch("")}
-            />
-            <div className="horizontal-scroll">
-              {filterByName(studentSuggestions, "name", stuSuggSearch).length === 0 ? (
-                <p>No student suggestions found</p>
-              ) : (
-                filterByName(studentSuggestions, "name", stuSuggSearch).map((item, i) => (
-                  <SocietyMemberCard key={i} item={item} isStudent={true} isJoined={false}
-                    onJoin={handleJoinStudentFromSuggestion}
-                    onCardClick={() => navigate(`/student-profile?id=${item.userId}`)}
-                  />
-                ))
-              )}
-            </div>
-
-            {/* Student Following */}
-            
-          </div>
-        </div>
-
+        {/* ── Connections Panel ── */}
+        <SocietyConnectionsPanel
+          members={members}
+          studentMembers={studentMembers}
+          following={following}
+          studentFollowing={studentFollowing}
+          suggestions={suggestions}
+          studentSuggestions={studentSuggestions}
+          isJoinedSociety={(item) => following.some((f) => f.societyId === item.societyId)}
+          isJoinedStudent={(item) => studentFollowing.some((f) => f._id === item._id)}
+          onJoinSociety={(item) => {
+            const isJoined = following.some((f) => f.societyId === item.societyId);
+            isJoined ? handleToggleFollowing(item) : handleJoinFromSuggestion(item);
+          }}
+          onJoinStudent={(item) => {
+            const isJoined = studentFollowing.some((f) => f._id === item._id);
+            isJoined ? handleToggleStudentFollowing(item) : handleJoinStudentFromSuggestion(item);
+          }}
+          onSocietyClick={(item) => navigate(`/society-profile?id=${item.societyId}`)}
+          onStudentClick={(item) => navigate(`/student-profile?id=${item.userId}`)}
+        />
         {/* ── Post / News Tab ── */}
         <PostNewsTab
-          activeTab={activeTab} setActiveTab={setActiveTab}
-          myPosts={myPosts} myNews={myNews} society={society}
-          onEditPost={handleEditPostOpen} onDeletePost={handleDeletePost}
-          onNewsUpdated={(updated) => setMyNews((p) => p.map((n) => (n._id === updated._id ? updated : n)))}
-          onNewsDeleted={(id) => setMyNews((p) => p.filter((n) => n._id !== id))}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          myPosts={myPosts}
+          myNews={myNews}
+          society={society}
+          onEditPost={handleEditPostOpen}
+          onDeletePost={handleDeletePost}
+          onNewsUpdated={(updated) =>
+            setMyNews((p) =>
+              p.map((n) => (n._id === updated._id ? updated : n)),
+            )
+          }
+          onNewsDeleted={(id) =>
+            setMyNews((p) => p.filter((n) => n._id !== id))
+          }
         />
       </div>
     </>
