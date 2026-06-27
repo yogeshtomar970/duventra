@@ -343,6 +343,7 @@ export default function ProfilePage() {
         {showEditProfileModal && (
           <EditProfileModal
             onClose={() => setShowEditProfileModal(false)}
+            society={society}
             onSocietyUpdate={(updated) => setSociety(updated)}
           />
         )}
