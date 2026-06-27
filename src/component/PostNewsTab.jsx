@@ -30,7 +30,7 @@ export default function PostNewsTab({
 
       {/* ── Header with toggle ── */}
       <div className="pnt-header">
-        <p className="pnt-title">Posts & News</p>
+       
         <div className="pnt-toggle">
           <button
             className={`pnt-tog ${activeTab === "post" ? "pnt-tog--active" : ""}`}
