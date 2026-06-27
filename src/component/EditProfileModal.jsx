@@ -117,7 +117,7 @@ export default function EditProfileModal({ onClose, onSocietyUpdate, society }) 
             </div>
 
             <div className="modal-body">
-              
+              <label className="modal-file-area">
                 <div className="modal-file-icon">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b5651d" strokeWidth="2">
                     <polyline points="16 16 12 12 8 16"/>
@@ -133,7 +133,7 @@ export default function EditProfileModal({ onClose, onSocietyUpdate, society }) 
                   style={{ display: "none" }}
                   onChange={(e) => setSelectedImage(e.target.files[0])}
                 />
-             
+              </label>
 
               {selectedImage && (
                 <p className="selected-file-name">Selected: {selectedImage.name}</p>
