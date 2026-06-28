@@ -53,6 +53,7 @@ export default function SocietyConnectionsPanel({
   onJoinStudent,
   onSocietyClick,
   onStudentClick,
+  readOnly = false,
 }) {
   const [activeKey, setActiveKey] = useState("soc-members");
   const [search, setSearch] = useState("");
@@ -73,7 +74,11 @@ export default function SocietyConnectionsPanel({
     return name?.toLowerCase().includes(search.toLowerCase());
   });
 
-  const activeSection = SECTIONS.find((s) => s.key === activeKey);
+  const visibleSections = readOnly
+    ? SECTIONS.filter((s) => !s.key.includes("suggest"))
+    : SECTIONS;
+
+  const activeSection = visibleSections.find((s) => s.key === activeKey) || visibleSections[0];
 
   const handleNav = (key) => {
     setActiveKey(key);
@@ -95,7 +100,7 @@ export default function SocietyConnectionsPanel({
     <div className="scp-root">
       {/* ── Left nav ── */}
       <nav className="scp-nav" aria-label="Connection sections">
-        {SECTIONS.map((sec) => {
+        {visibleSections.map((sec) => {
           const count = dataMap[sec.key].items.length;
           return (
             <button
@@ -170,14 +175,16 @@ export default function SocietyConnectionsPanel({
                   <p className="scp-card-name">{name}</p>
                   {sub1 && <span className="scp-card-sub">{sub1}</span>}
                   {sub2 && <span className="scp-card-sub">{sub2}</span>}
-                  <button
-                    className={`scp-btn${joined ? " scp-btn--joined" : ""}`}
-                    onClick={(e) => handleJoin(e, item)}
-                  >
-                    {joined
-                      ? (isStudent ? "Following ✓" : "Joined ✓")
-                      : (isStudent ? "Follow" : "Join Us")}
-                  </button>
+                  {!readOnly && (
+                    <button
+                      className={`scp-btn${joined ? " scp-btn--joined" : ""}`}
+                      onClick={(e) => handleJoin(e, item)}
+                    >
+                      {joined
+                        ? (isStudent ? "Following ✓" : "Joined ✓")
+                        : (isStudent ? "Follow" : "Join Us")}
+                    </button>
+                  )}
                 </div>
               );
             })}
