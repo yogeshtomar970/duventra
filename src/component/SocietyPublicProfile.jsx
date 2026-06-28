@@ -159,13 +159,41 @@ export default function SocietyPublicProfile() {
           studentFollowing={studentFollowing}
           suggestions={[]}
           studentSuggestions={[]}
-          isJoinedSociety={() => false}
-          isJoinedStudent={() => false}
-          onJoinSociety={() => {}}
-          onJoinStudent={() => {}}
+          isJoinedSociety={(item) => following.some((f) => f.societyId === item.societyId)}
+          isJoinedStudent={(item) => studentFollowing.some((f) => f._id === item._id)}
+          onJoinSociety={async (item) => {
+            const myId = getMyId();
+            const token = localStorage.getItem("token");
+            const isJoined = following.some((f) => f.societyId === item.societyId);
+            const endpoint = isJoined ? "/api/join/unjoin" : "/api/join/join";
+            const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+              body: JSON.stringify({ myId, targetId: item.societyId }),
+            });
+            const data = await res.json();
+            if (isJoined && !data.joined) setFollowing((p) => p.filter((f) => f.societyId !== item.societyId));
+            else if (data.joined) setFollowing((p) => [...p, item]);
+          }}
+          onJoinStudent={async (item) => {
+            const user = JSON.parse(localStorage.getItem("user"));
+            const token = localStorage.getItem("token");
+            const myId = user?.societyId || user?.id;
+            const followerType = user?.societyId ? "society" : "student";
+            const isJoined = studentFollowing.some((f) => f._id === item._id);
+            const endpoint = isJoined ? "/api/student/unfollow" : "/api/student/follow";
+            const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+              body: JSON.stringify({ myId, targetId: item._id.toString(), followerType }),
+            });
+            const data = await res.json();
+            if (isJoined && data.followed === false) setStudentFollowing((p) => p.filter((f) => f._id !== item._id));
+            else if (data.followed) setStudentFollowing((p) => [...p, item]);
+          }}
           onSocietyClick={(item) => navigate(`/society-profile?id=${item.societyId}`)}
           onStudentClick={(item) => navigate(`/student-profile?id=${item.userId}`)}
-          readOnly={true}
+          readOnly={false}
         />
 
         {/* ── Posts & News ── */}
