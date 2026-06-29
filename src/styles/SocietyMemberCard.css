@@ -231,9 +231,9 @@
 .scp-btn:hover { background: #9a5518; }
 
 .scp-btn--joined {
-  background: #f0e8df;
-  color: #8b5e3c;
-  border: 1px solid #d6c5b0;
+  background: #16a34a;
+  color: white;
+  border: 1px solid #a0c9af;
 }
 
 .scp-btn--joined:hover { background: #e8d9cc; }
