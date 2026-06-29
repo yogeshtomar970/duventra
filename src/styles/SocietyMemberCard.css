@@ -5,7 +5,7 @@
   font-family: 'Plus Jakarta Sans', sans-serif;
   display: grid;
   grid-template-columns: 210px 1fr;
-  min-height: 420px;
+  min-height: 220px;
   background: #ffffff;
   border: 1px solid #e8e0d6;
   border-radius: 20px;
