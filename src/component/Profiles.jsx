@@ -19,6 +19,7 @@ import StudentNewsSection from "../component/StudentNewsSection";
 import useStudentData from "../hooks/useStudentData";
 import useStudentNetwork from "../hooks/useStudentNetwork";
 import useEditStudentProfile from "../hooks/useEditStudentProfile";
+import FeedLoader from "./FeedLoader.jsx";
 
 // Constants
 const DEFAULT_AVATAR =
@@ -59,9 +60,8 @@ export default function Studentprofile() {
   } = useEditStudentProfile({ setStudent });
 
   // ── Early returns ──
-  if (loading)
-    return <div style={{ textAlign: "center", padding: "60px 20px" }}><h3>Loading profile...</h3></div>;
-  if (notLoggedIn)
+  if (loading) return <FeedLoader />;
+
     return <div style={{ textAlign: "center", padding: "60px 20px" }}><h3>Please login to view your profile</h3></div>;
   if (!student)
     return <div style={{ textAlign: "center", padding: "60px 20px" }}><h3>Student profile not found</h3></div>;
