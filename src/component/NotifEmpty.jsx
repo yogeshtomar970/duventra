@@ -2,20 +2,15 @@ import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { TYPE_CONFIG } from "../notificationHelpers.js";
+import FeedLoader from "./FeedLoader.jsx";
 
 /**
  * NotifEmpty
  * Shows loading spinner or empty state depending on props.
  */
 export default function NotifEmpty({ loading, activeTab }) {
-  if (loading) {
-    return (
-      <div className="notif-empty">
-        <FontAwesomeIcon icon={faSpinner} spin size="2x" style={{ opacity: 0.4 }} />
-        <p>Loading notifications...</p>
-      </div>
-    );
-  }
+if (loading) return <FeedLoader />;
+
 
   return (
     <div className="notif-empty">
