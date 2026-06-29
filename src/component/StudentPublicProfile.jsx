@@ -12,6 +12,7 @@ import "../styles/Profile.css";
 import "../styles/StudentProfileCard.css";
 import "../styles/SocietyMemberCard.css";
 import "../ProfilePage.css";
+import FeedLoader from "./FeedLoader.jsx";
 
 const getImageUrl = (url, fallback) => {
   if (!url) return fallback;
@@ -112,7 +113,8 @@ export default function StudentPublicProfile() {
     setFollowLoading(false);
   };
 
-  if (loading) return <div className="pp-loading"><h3>Loading...</h3></div>;
+  if (loading) return <FeedLoader/>;
+
   if (!student) return <div className="pp-loading"><h3>Student not found</h3></div>;
 
   const me = getLoggedInUser();

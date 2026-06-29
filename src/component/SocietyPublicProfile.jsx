@@ -14,6 +14,7 @@ import "../styles/ProfileCard.css";
 import "../styles/CommitteeCard.css";
 import "../styles/SocietyMemberCard.css";
 import "../styles/PostNewsTab.css";
+import FeedLoader from "./FeedLoader.jsx";
 
 const getImageUrl = (url, fallback) => {
   if (!url) return fallback;
@@ -111,7 +112,8 @@ export default function SocietyPublicProfile() {
     setJoinLoading(false);
   };
 
-  if (loading) return <div className="pp-loading"><h3>Loading...</h3></div>;
+ if (loading) return <FeedLoader />
+
   if (!society) return <div className="pp-loading"><h3>Society not found</h3></div>;
 
   const myId = getMyId();
