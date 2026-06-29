@@ -15,6 +15,7 @@ import CommitteeCard from "../component/CommitteeCard";
 import CommitteeModal from "../component/CommitteeModal";
 import SocietyConnectionsPanel from "../component/SocietyMemberCard";
 import PostNewsTab from "../component/PostNewsTab";
+import FeedLoader from "../component/FeedLoader";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -323,8 +324,7 @@ export default function ProfilePage() {
     }
   };
 
-
-  if (loading) return <h2 className="pp-loading">Loading...</h2>;
+if (loading) return <FeedLoader />;
 
   return (
     <>
