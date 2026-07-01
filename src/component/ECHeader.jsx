@@ -84,7 +84,7 @@ export default function ECHeader({
                       className="ec-dot-item"
                       onClick={() => { setShowDotMenu(false); onEditPost(); }}
                     >
-                      ✏️ Edit Post
+                      Edit
                     </button>
                   )}
                   {onEditPost && onDeletePost && (
@@ -95,7 +95,7 @@ export default function ECHeader({
                       className="ec-dot-item ec-dot-item--danger"
                       onClick={() => { setShowDotMenu(false); onDeletePost(); }}
                     >
-                      Delete Post
+                      Delete
                     </button>
                   )}
                 </div>
