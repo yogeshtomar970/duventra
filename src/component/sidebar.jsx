@@ -4,6 +4,7 @@ import { FaHome, FaUser, FaEnvelope,FaBell, FaKey  } from "react-icons/fa";
 import "../sidebar.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faNewspaper } from "@fortawesome/free-solid-svg-icons";
+import API_BASE_URL from "../config/api.js";
 
 export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
   const navigate = useNavigate();
@@ -25,7 +26,15 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
           {user && (
             <div className="sidebar-user">
               <div className="sidebar-user-avatar">
-                {(user.name || user.email || "U")[0].toUpperCase()}
+                {user.profilePic ? (
+                  <img
+                    src={user.profilePic.startsWith("http") ? user.profilePic : `${API_BASE_URL}${user.profilePic}`}
+                    alt={user.name || "Profile"}
+                    className="sidebar-user-avatar-img"
+                  />
+                ) : (
+                  (user.name || user.societyName || user.email || "U")[0].toUpperCase()
+                )}
               </div>
               <div>
                 <div className="sidebar-user-email">
@@ -52,7 +61,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
 
           <Link to="/meesage"  onClick={close} className={navClass}>
            <div className="sidebar-item">
-            <FaEnvelope /> Messages
+            <FaEnvelope /> Meesage
             </div>
           </Link>
 
