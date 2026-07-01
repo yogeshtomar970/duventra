@@ -183,7 +183,7 @@ export default function SocietySignup() {
             <button
               type="button"
               className="btn"
-              style={{ background: "none", color: "#6b7280", border: "1px solid #e5e7eb", marginTop: 6 }}
+              style={{ background: "none", color: "white", border: "1px solid #e5e7eb", marginTop: 6 }}
               onClick={() => setStep(1)}
             >
               ← Change Email
