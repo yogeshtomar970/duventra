@@ -63,9 +63,9 @@ export default function StudentSignup() {
     setError("");
 
     if (password !== repassword)
-      return setError("Passwords match nahi kar rahe");
+      return setError("Passwords do not match.");
     if (!idCard)
-      return setError("ID card upload karein");
+      return setError("Upload Id card");
 
     setLoading(true);
     try {
@@ -87,7 +87,7 @@ export default function StudentSignup() {
       const result = await res.json();
       if (!res.ok) throw new Error(result.message || "Signup failed");
 
-      setInfo("Signup successful! Login page pe redirect ho rahe hain...");
+      setInfo("Sign-up successful! Redirecting to the login page...");
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
       setError(err.message);
@@ -108,7 +108,7 @@ export default function StudentSignup() {
           <span className={`ss-step ${step >= 2 ? "active" : ""}`}>2</span>
         </div>
         <p className="ss-step-label">
-          {step === 1 ? "Apni details verify karein" : "Account setup karein"}
+          {step === 1 ? "Verify your details" : "Set up account"}
         </p>
 
         {error && <p className="ss-error">{error}</p>}
@@ -142,7 +142,7 @@ export default function StudentSignup() {
               onChange={handleVerifyChange}
             />
             <p className="ss-hint">
-              ⚠️ Exactly wahi likho jo ID card pe hai
+              ⚠️Exactly fill what is on the card.
             </p>
             <button className="btn" type="submit" disabled={loading}>
               {loading ? "Verifying..." : "Verify & Continue"}
