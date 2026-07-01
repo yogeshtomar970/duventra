@@ -270,18 +270,90 @@
 
 /* Description */
 .nc-card-desc {
-  margin: 12px 14px 8px;
+  margin: 12px 14px 0;
   font-size: 14px;
   line-height: 1.6;
   color: #333;
   word-break: break-word;
-  max-height: 55px; /* 4 lines × 1.6 line-height × 15px ≈ 96px */
-  overflow-y: auto;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
+  transition: max-height 0.3s ease;
 }
-.nc-card-desc::-webkit-scrollbar {
-  display: none; /* Chrome/Safari */
+
+/* ── Read more ── */
+.nc-desc-wrap {
+  margin: 12px 14px 8px;
+}
+
+.nc-read-more-btn {
+  background: none;
+  border: none;
+  color: #b5651d;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0 0;
+  font-family: inherit;
+}
+
+.nc-read-more-btn:hover { opacity: 0.75; }
+
+/* ── PC Popup ── */
+.nc-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.nc-popup-box {
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid #e8e0d6;
+  width: min(520px, 92vw);
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.14);
+  animation: epm-popup 0.22s cubic-bezier(0.34,1.3,0.64,1);
+}
+
+.nc-popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #e8e0d6;
+}
+
+.nc-popup-close {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #888;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background .14s;
+}
+
+.nc-popup-close:hover { background: #f0e8df; color: #b5651d; }
+
+.nc-popup-body {
+  padding: 1.25rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.nc-popup-desc {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #333;
+  word-break: break-word;
+  white-space: pre-wrap;
+  margin: 0;
 }
 
 /* Actions */
