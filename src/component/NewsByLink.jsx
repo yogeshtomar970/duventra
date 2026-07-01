@@ -26,7 +26,7 @@ export default function NewsByLink() {
     return (
       <div style={styles.center}>
         <div style={styles.spinner} />
-        <p style={styles.loadingText}>News load ho rahi hai...</p>
+        <p style={styles.loadingText}>News is loading...</p>
       </div>
     );
   }
@@ -35,9 +35,9 @@ export default function NewsByLink() {
     return (
       <div style={styles.center}>
         <p style={{ fontSize: 40 }}>😕</p>
-        <p style={styles.errText}>News nahi mili ya delete ho gayi</p>
+        <p style={styles.errText}>The news was not found or has been deleted.</p>
         <button style={styles.btn} onClick={() => navigate("/news")}>
-          News par Jaao
+          Go to the news
         </button>
       </div>
     );
