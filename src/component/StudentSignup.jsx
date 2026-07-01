@@ -4,58 +4,95 @@ import "../studentsignup.css";
 import { useNavigate } from "react-router-dom";
 
 export default function StudentSignup() {
-  const [formData, setFormData] = useState({
+  const navigate = useNavigate();
+  const [step, setStep] = useState(1); // 1: verify, 2: complete signup
+
+  // Step 1 fields
+  const [verifyData, setVerifyData] = useState({
     name: "",
     rollNo: "",
     course: "",
     collegeName: "",
-    email: "",
-    year: "",
-    password: "",
-    repassword: "",
   });
-const navigate = useNavigate();
 
+  // Step 2 fields
+  const [email, setEmail] = useState("");
+  const [year, setYear] = useState("");
+  const [password, setPassword] = useState("");
+  const [repassword, setRepassword] = useState("");
   const [idCard, setIdCard] = useState(null);
 
-  // input change handler
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
+
+  const handleVerifyChange = (e) => {
+    setVerifyData({ ...verifyData, [e.target.name]: e.target.value });
   };
 
-  // form submit
+  // ── Step 1: validstudents collection se match check ──
+  const handleVerify = async (e) => {
+    e.preventDefault();
+    setError("");
+    const { name, rollNo, course, collegeName } = verifyData;
+    if (!name || !rollNo || !course || !collegeName)
+      return setError("Sab fields fill karein");
+
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/student/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(verifyData),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Verification failed");
+
+      setInfo("✅ Details verified! Aage badhein.");
+      setStep(2);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ── Step 2: Actual signup ──────────────────────────
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
-    const data = new FormData();
-    data.append("name", formData.name);
-    data.append("rollNo", formData.rollNo);
-    data.append("course", formData.course);
-    data.append("collegeName", formData.collegeName);
-    data.append("email", formData.email);
-    data.append("year", formData.year);
-    data.append("password", formData.password);
-    data.append("repassword", formData.repassword);
-    data.append("idCard", idCard);
+    if (password !== repassword)
+      return setError("Passwords match nahi kar rahe");
+    if (!idCard)
+      return setError("ID card upload karein");
 
+    setLoading(true);
     try {
+      const formData = new FormData();
+      formData.append("name",        verifyData.name);
+      formData.append("rollNo",      verifyData.rollNo);
+      formData.append("course",      verifyData.course);
+      formData.append("collegeName", verifyData.collegeName);
+      formData.append("email",       email);
+      formData.append("year",        year);
+      formData.append("password",    password);
+      formData.append("repassword",  repassword);
+      formData.append("idCard",      idCard);
+
       const res = await fetch(`${API_BASE_URL}/api/student/signup`, {
         method: "POST",
-        body: data,
+        body: formData,
       });
-
       const result = await res.json();
-      if (res.ok) {
-      alert(result.message || "Signup successful");
-      navigate("/login"); // ✅ redirect here
-    } else {
-      alert(result.message || "Signup failed");
-    }
-    } catch (error) {
-      alert("Something went wrong");
+      if (!res.ok) throw new Error(result.message || "Signup failed");
+
+      setInfo("Signup successful! Login page pe redirect ho rahe hain...");
+      setTimeout(() => navigate("/login"), 1500);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -64,81 +101,105 @@ const navigate = useNavigate();
       <div className="studentsignup">
         <h2>Student Signup</h2>
 
-        <form onSubmit={handleSubmit}>
-          <input
-            name="name"
-            placeholder="Name as per Id card"
-            value={formData.name}
-            onChange={handleChange}
-          />
+        {/* ── Step indicator ── */}
+        <div className="ss-steps">
+          <span className={`ss-step ${step >= 1 ? "active" : ""}`}>1</span>
+          <span className="ss-step-line" />
+          <span className={`ss-step ${step >= 2 ? "active" : ""}`}>2</span>
+        </div>
+        <p className="ss-step-label">
+          {step === 1 ? "Apni details verify karein" : "Account setup karein"}
+        </p>
 
-          <input
-            name="rollNo"
-            placeholder="Roll No as per Id card"
-            value={formData.rollNo}
-            onChange={handleChange}
-          />
+        {error && <p className="ss-error">{error}</p>}
+        {info  && <p className="ss-info">{info}</p>}
 
-          <input
-            name="course"
-            placeholder="Course as per Id card"
-            value={formData.course}
-            onChange={handleChange}
-          />
+        {/* ── Step 1: Verify ── */}
+        {step === 1 && (
+          <form onSubmit={handleVerify}>
+            <input
+              name="name"
+              placeholder="Name (as per ID card)"
+              value={verifyData.name}
+              onChange={handleVerifyChange}
+            />
+            <input
+              name="rollNo"
+              placeholder="Roll No (as per ID card)"
+              value={verifyData.rollNo}
+              onChange={handleVerifyChange}
+            />
+            <input
+              name="course"
+              placeholder="Course (as per ID card)"
+              value={verifyData.course}
+              onChange={handleVerifyChange}
+            />
+            <input
+              name="collegeName"
+              placeholder="College Name (as per ID card)"
+              value={verifyData.collegeName}
+              onChange={handleVerifyChange}
+            />
+            <p className="ss-hint">
+              ⚠️ Exactly wahi likho jo ID card pe hai
+            </p>
+            <button className="btn" type="submit" disabled={loading}>
+              {loading ? "Verifying..." : "Verify & Continue"}
+            </button>
+          </form>
+        )}
 
-          <input
-            name="collegeName"
-            placeholder="College Name as per Id card"
-            value={formData.collegeName}
-            onChange={handleChange}
-          />
-
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-
-          <input
-            name="year"
-            placeholder="Year"
-            value={formData.year}
-            onChange={handleChange}
-            required
-          />
-
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-
-          <input
-            type="password"
-            name="repassword"
-            placeholder="Re-enter Password"
-            value={formData.repassword}
-            onChange={handleChange}
-            required
-          />
-
-          <label>Upload ID Card</label>
-          <input
-            type="file"
-            onChange={(e) => setIdCard(e.target.files[0])}
-            required
-          />
-
-          <button className="btn" type="submit">
-            Signup
-          </button>
-        </form>
+        {/* ── Step 2: Complete signup ── */}
+        {step === 2 && (
+          <form onSubmit={handleSubmit}>
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <input
+              name="year"
+              placeholder="Year (e.g. 2nd Year)"
+              value={year}
+              onChange={(e) => setYear(e.target.value)}
+              required
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <input
+              type="password"
+              placeholder="Re-enter Password"
+              value={repassword}
+              onChange={(e) => setRepassword(e.target.value)}
+              required
+            />
+            <label className="ss-file-label">Upload ID Card</label>
+            <input
+              type="file"
+              accept="image/*,application/pdf"
+              onChange={(e) => setIdCard(e.target.files[0])}
+              required
+            />
+            <button className="btn" type="submit" disabled={loading}>
+              {loading ? "Creating account..." : "Create Account"}
+            </button>
+            <button
+              type="button"
+              className="ss-back-btn"
+              onClick={() => { setStep(1); setError(""); setInfo(""); }}
+            >
+              ← Back
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );
