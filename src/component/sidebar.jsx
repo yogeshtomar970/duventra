@@ -52,7 +52,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
 
           <Link to="/meesage"  onClick={close} className={navClass}>
            <div className="sidebar-item">
-            <FaEnvelope /> Meesage
+            <FaEnvelope /> Messages
             </div>
           </Link>
 
