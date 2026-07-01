@@ -83,8 +83,8 @@ export const contactOptions = [
   {
     icon: "✉️",
     label: "Email Support",
-    value: "support@dueventra.in",
-    action: () => window.open("mailto:support@dueventra.in"),
+    value: "support.duventra@gmail.com",
+    action: () => window.open("mailto:support.duventra@gmail.com"),
     color: "#6c63ff",
   },
   
