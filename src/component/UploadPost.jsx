@@ -215,9 +215,7 @@ export default function UploadPost() {
             />
           </div>
         </div>
-        <p className="upload-date-hint">
-          Setting an end date ensures the post appears as "Upcoming" until the event concludes.
-        </p>
+        
         {message.text && (
           <p className={message.ok ? "upload-ok" : "upload-err"}>
             {message.text}
