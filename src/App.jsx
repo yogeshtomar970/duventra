@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import SplashScreen from "./component/Splashscreen";
 import HomePage from "./component/Homepage";
 import Notification from "./component/Notification";
 import NewsPage from "./component/News";
@@ -49,6 +50,15 @@ function InstallGuideGuard({ children }) {
 
 function App() {
   const [authReady, setAuthReady] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
+
+  // Splash 2.2s ke baad hide karo
+  useEffect(() => {
+    const t = setTimeout(() => setShowSplash(false), 2200);
+    return () => clearTimeout(t);
+  }, []);
+
+  if (showSplash) return <SplashScreen />;
 
   useEffect(() => {
     setAuthReady(true);
