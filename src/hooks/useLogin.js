@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { showSuccess, showError } from "../utils/Toast.js";
 import API_BASE_URL from "../config/api.js";
 
 /**
@@ -23,21 +24,17 @@ export default function useLogin() {
       const result = await res.json();
 
       if (res.ok) {
-        alert(result.message);
-        
+        showSuccess(result.message || "Login successful!");
         localStorage.setItem("token", result.token);
-        
         const userData = { ...result.user, role: result.role };
         localStorage.setItem("user", JSON.stringify(userData));
-        // SocketContext same-tab mein bhi detect kare isliye manually dispatch
         window.dispatchEvent(new StorageEvent("storage", { key: "user" }));
-
         navigate("/");
       } else {
-        alert(result.message || "Login failed");
+        showError(result.message || "Login failed");
       }
     } catch {
-      alert("Server error");
+      showError("Server error");
     }
   };
 
