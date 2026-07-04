@@ -154,15 +154,12 @@
 .scp-card {
   flex-shrink: 0;
   width: 130px;
-  height: 200px;
   background: #ffffff;
   border: 0.5px solid #e8e0d6;
   border-radius: 14px;
   overflow: hidden;
   cursor: pointer;
   transition: border-color .15s;
-  display: flex;
-  flex-direction: column;
 }
 .scp-card:hover { border-color: #c4a882; }
 
@@ -213,9 +210,6 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  flex: 1;              /* ← image ke baad bachi jagah fill karo */
-  min-height: 0;        /* ← flex truncation ke liye zaroori */
-  overflow: hidden;
 }
 
 /* ── Card text ── */
@@ -225,19 +219,14 @@
   color: #1a1a1a;
   line-height: 1.35;
   margin: 0;
-  overflow: hidden;
-  display: -webkit-box;
-    /* ← max 2 lines, baad mein ... */
-  -webkit-box-orient: vertical;
+  word-break: break-word;
 }
 .scp-card-sub {
   font-size: 10px;
   color: #b5651d;
   font-weight: 500;
   line-height: 1.4;
-  white-space: nowrap;         /* ← ek hi line, truncate ho */
-  overflow: hidden;
-  text-overflow: ellipsis;
+  word-break: break-word;
 }
 
 /* ── Button ── */
@@ -250,11 +239,10 @@
   font-weight: 600;
   font-family: 'Plus Jakarta Sans', sans-serif;
   cursor: pointer;
-  margin-top: auto;     /* ← hamesha card ke bottom pe stick rahega */
+  margin-top: 6px;
   transition: background .14s;
   background: #b5651d;
   color: #fff;
-  flex-shrink: 0;
 }
 .scp-btn:hover { background: #9a5518; }
 .scp-btn--joined {
