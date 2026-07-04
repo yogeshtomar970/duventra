@@ -74,8 +74,7 @@
   display: flex;
   flex-direction: column;
   padding: 20px;
-  min-width: 0;          /* ← grid overflow fix ke liye zaroori */
-  overflow: hidden;      /* ← panel se bahar mat jao */
+  overflow-y: auto;
 }
 
 .scp-panel-header {
@@ -145,45 +144,27 @@
   flex-direction: row;
   gap: 10px;
   overflow-x: auto;
-  overflow-y: hidden;
-  padding-bottom: 8px;
-  padding-top: 2px;
-  scrollbar-width: thin;
-  scrollbar-color: #e8d5c0 transparent;
-  -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x proximity;
+  padding-bottom: 6px;
+  scrollbar-width: none;
 }
 
-.scp-grid::-webkit-scrollbar {
-  height: 4px;
-}
-.scp-grid::-webkit-scrollbar-track {
-  background: transparent;
-}
-.scp-grid::-webkit-scrollbar-thumb {
-  background: #e8d5c0;
-  border-radius: 4px;
-}
+.scp-grid::-webkit-scrollbar { display: none; }
 
 /* ── Single card ── */
 .scp-card {
   flex-shrink: 0;
   width: 130px;
-  height: 200px;          /* ← fixed height — naam bada ho toh bhi same rahega */
+  height: 200px;
   background: #ffffff;
   border: 0.5px solid #e8e0d6;
   border-radius: 14px;
   overflow: hidden;
   cursor: pointer;
-  transition: border-color .15s, box-shadow .15s;
+  transition: border-color .15s;
   display: flex;
   flex-direction: column;
-  scroll-snap-align: start;
 }
-.scp-card:hover {
-  border-color: #c4a882;
-  box-shadow: 0 4px 12px rgba(181,101,29,.12);
-}
+.scp-card:hover { border-color: #c4a882; }
 
 /* ── Square image top ── */
 .scp-card-img {
@@ -246,7 +227,7 @@
   margin: 0;
   overflow: hidden;
   display: -webkit-box;
-  -webkit-line-clamp: 2;      /* ← max 2 lines, baad mein ... */
+    /* ← max 2 lines, baad mein ... */
   -webkit-box-orient: vertical;
 }
 .scp-card-sub {
