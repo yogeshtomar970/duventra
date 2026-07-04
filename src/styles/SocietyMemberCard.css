@@ -222,6 +222,7 @@
   word-break: break-word;
   margin-top: 4px;
     margin-bottom: 0px;
+        height: 35px;
 }
 .scp-card-sub {
   font-size: 10px;
