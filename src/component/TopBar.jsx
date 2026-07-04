@@ -30,7 +30,7 @@ export default function TopBar({ onSearch, onFilterChange }) {
         {/* ── Filter Pills ── */}
         <div className="menu-buttons">
           <button
-            className={`pill-btn pill-btn--upcoming ${upcomingOnly ? "active" : ""}`}
+            className={`pill-btn pill-btn--upcoming ${upcomingOnly && isAllActive ? "active" : ""}`}
             onClick={toggleUpcoming}
           >
             🟢 New
