@@ -74,7 +74,8 @@
   display: flex;
   flex-direction: column;
   padding: 20px;
-  overflow-y: auto;
+  min-width: 0;          /* ← grid overflow fix ke liye zaroori */
+  overflow: hidden;      /* ← panel se bahar mat jao */
 }
 
 .scp-panel-header {
@@ -144,24 +145,45 @@
   flex-direction: row;
   gap: 10px;
   overflow-x: auto;
-  padding-bottom: 6px;
-  scrollbar-width: none;
+  overflow-y: hidden;
+  padding-bottom: 8px;
+  padding-top: 2px;
+  scrollbar-width: thin;
+  scrollbar-color: #e8d5c0 transparent;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
 }
 
-.scp-grid::-webkit-scrollbar { display: none; }
+.scp-grid::-webkit-scrollbar {
+  height: 4px;
+}
+.scp-grid::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scp-grid::-webkit-scrollbar-thumb {
+  background: #e8d5c0;
+  border-radius: 4px;
+}
 
 /* ── Single card ── */
 .scp-card {
   flex-shrink: 0;
   width: 130px;
+  height: 200px;          /* ← fixed height — naam bada ho toh bhi same rahega */
   background: #ffffff;
   border: 0.5px solid #e8e0d6;
   border-radius: 14px;
   overflow: hidden;
   cursor: pointer;
-  transition: border-color .15s;
+  transition: border-color .15s, box-shadow .15s;
+  display: flex;
+  flex-direction: column;
+  scroll-snap-align: start;
 }
-.scp-card:hover { border-color: #c4a882; }
+.scp-card:hover {
+  border-color: #c4a882;
+  box-shadow: 0 4px 12px rgba(181,101,29,.12);
+}
 
 /* ── Square image top ── */
 .scp-card-img {
@@ -210,6 +232,9 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  flex: 1;              /* ← image ke baad bachi jagah fill karo */
+  min-height: 0;        /* ← flex truncation ke liye zaroori */
+  overflow: hidden;
 }
 
 /* ── Card text ── */
@@ -219,14 +244,19 @@
   color: #1a1a1a;
   line-height: 1.35;
   margin: 0;
-  word-break: break-word;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;      /* ← max 2 lines, baad mein ... */
+  -webkit-box-orient: vertical;
 }
 .scp-card-sub {
   font-size: 10px;
   color: #b5651d;
   font-weight: 500;
   line-height: 1.4;
-  word-break: break-word;
+  white-space: nowrap;         /* ← ek hi line, truncate ho */
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ── Button ── */
@@ -239,10 +269,11 @@
   font-weight: 600;
   font-family: 'Plus Jakarta Sans', sans-serif;
   cursor: pointer;
-  margin-top: 6px;
+  margin-top: auto;     /* ← hamesha card ke bottom pe stick rahega */
   transition: background .14s;
   background: #b5651d;
   color: #fff;
+  flex-shrink: 0;
 }
 .scp-btn:hover { background: #9a5518; }
 .scp-btn--joined {
