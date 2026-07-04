@@ -76,6 +76,7 @@ export default function useTopBar({ onSearch, onFilterChange }) {
   const handleClearAll = () => {
     setSelectedOptions([]);
     setSelectedCollege(null);
+    setUpcomingOnly(null);
     onFilterChange?.({ eventTypes: [], college: null });
   };
   
