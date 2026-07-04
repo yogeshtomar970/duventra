@@ -156,35 +156,40 @@ export default function SocietyConnectionsPanel({
           <div className="scp-grid">
             {filtered.map((item, i) => {
               const name = isStudent ? item.name : item.societyName;
-              const sub1 = item.collegeName || "";
-              const sub2 = isStudent
-                ? [item.course, item.year ? `${item.year} yr` : ""].filter(Boolean).join(" · ")
-                : item.societyType || "";
+              const college = item.collegeName || "";
+              const course = isStudent ? item.course || "" : item.societyType || "";
+              const year = isStudent && item.year ? `${item.year} yr` : "";
+              const badge = isStudent ? year : (item.societyType ? item.societyType.split(" ")[0] : "");
               const joined = isJoined(item);
               const imgUrl = getImageUrl(item.profilePic);
 
               return (
                 <div className="scp-card" key={i} onClick={() => handleCardClick(item)}>
-                  <div className="scp-av">
-                    {imgUrl ? (
-                      <img src={imgUrl} alt={name} className="scp-av-img" />
-                    ) : (
-                      <span className="scp-av-init">{getInitials(name)}</span>
+                  {/* Square image top */}
+                  <div className="scp-card-img">
+                    {imgUrl
+                      ? <img src={imgUrl} alt={name} className="scp-card-img-photo" />
+                      : <span className="scp-card-img-init">{getInitials(name)}</span>
+                    }
+                    {badge && <span className="scp-card-badge">{badge}</span>}
+                  </div>
+
+                  {/* Info below */}
+                  <div className="scp-card-body">
+                    <p className="scp-card-name">{name}</p>
+                    {college && <p className="scp-card-sub">{college}</p>}
+                    {course && <p className="scp-card-sub">{course}</p>}
+                    {!readOnly && (
+                      <button
+                        className={`scp-btn${joined ? " scp-btn--joined" : ""}`}
+                        onClick={(e) => handleJoin(e, item)}
+                      >
+                        {joined
+                          ? (isStudent ? "Following ✓" : "Joined ✓")
+                          : (isStudent ? "Follow" : "Join Us")}
+                      </button>
                     )}
                   </div>
-                  <p className="scp-card-name">{name}</p>
-                  {sub1 && <span className="scp-card-sub">{sub1}</span>}
-                  {sub2 && <span className="scp-card-sub">{sub2}</span>}
-                  {!readOnly && (
-                    <button
-                      className={`scp-btn${joined ? " scp-btn--joined" : ""}`}
-                      onClick={(e) => handleJoin(e, item)}
-                    >
-                      {joined
-                        ? (isStudent ? "Following ✓" : "Joined ✓")
-                        : (isStudent ? "Follow" : "Join Us")}
-                    </button>
-                  )}
                 </div>
               );
             })}
