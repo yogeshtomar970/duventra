@@ -1,5 +1,6 @@
 import { toast } from "react-toastify";
 import "./confirmToast.css";
+
 /**
  * confirmToast(message)
  * window.confirm() ka drop-in replacement, react-toastify pe based.
@@ -12,34 +13,30 @@ import "./confirmToast.css";
 export default function confirmToast(message) {
   return new Promise((resolve) => {
     const toastId = "confirm-toast";
+    let answered = false; // taaki onClose galti se "false" resolve na kar de jab already answer chuka ho
 
     const handle = (result) => {
-      toast.dismiss(toastId);
-      resolve(result);
+      answered = true;
+      resolve(result);        // pehle resolve karo...
+      toast.dismiss(toastId); // ...phir toast band karo (dismiss se onClose trigger ho sakta hai, par ab woh no-op hoga)
     };
 
     toast(
-      ({ closeToast }) => (
+      () => (
         <div className="confirm-toast">
           <p className="confirm-toast-message">{message}</p>
           <div className="confirm-toast-actions">
             <button
               type="button"
               className="confirm-toast-btn confirm-toast-btn-confirm"
-              onClick={() => {
-                closeToast();
-                handle(true);
-              }}
+              onClick={() => handle(true)}
             >
               Yes
             </button>
             <button
               type="button"
               className="confirm-toast-btn confirm-toast-btn-cancel"
-              onClick={() => {
-                closeToast();
-                handle(false);
-              }}
+              onClick={() => handle(false)}
             >
               Cancel
             </button>
@@ -52,7 +49,9 @@ export default function confirmToast(message) {
         closeOnClick: false,
         closeButton: false,
         draggable: false,
-        onClose: () => resolve(false),
+        onClose: () => {
+          if (!answered) resolve(false); // sirf tab jab user ne button na dabaya ho (e.g. swipe se band kiya)
+        },
       },
     );
   });
