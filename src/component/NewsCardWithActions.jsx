@@ -27,7 +27,14 @@ export default function NewsCardWithActions({ item, userId, onUpdated, onDeleted
 
   const imgSrc    = resolveImg(item.image);
   const authorImg = resolveImg(item.userImage);
-
+const handleReadMore = (e) => {
+    e.stopPropagation();
+    if (isMobile()) {
+      setExpanded((p) => !p);
+    } else {
+      setShowPopup(true);
+    }
+  };
   const handleAuthorClick = () => {
     if (!item.recipientId) return;
     if (item.uploadedBy === "society") {
