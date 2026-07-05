@@ -1,5 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import HomePage from "./component/Homepage";
 import Notification from "./component/Notification";
 import NewsPage from "./component/News";
@@ -58,6 +60,7 @@ function App() {
 
   return (
     <Router>
+      <ToastContainer position="top-center" autoClose={3000} newestOnTop />
       <Routes>
         {/* ✅ Install Guide Route */}
         <Route path="/install-guide" element={<InstallGuide />} />
