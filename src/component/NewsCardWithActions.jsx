@@ -76,8 +76,20 @@ export default function NewsCardWithActions({ item, userId, onUpdated, onDeleted
         </div>
 
         {/* Description */}
-        <p className="nc-card-desc">{item.description}</p>
-
+        <div className="nc-desc-wrap">
+          <p
+            ref={descRef}
+            className="nc-card-desc"
+            style={{ maxHeight: expanded ? "none" : COLLAPSED_HEIGHT, overflow: "hidden" }}
+          >
+            {data.description}
+          </p>
+          {overflow && (
+            <button className="nc-read-more-btn" onClick={handleReadMore}>
+              {expanded ? "Read less ▲" : "Read more ▼"}
+            </button>
+          )}
+        </div>
         {/* Actions */}
         <NewsCardActions
           liked={liked} likes={likes} commentCount={commentCount}
