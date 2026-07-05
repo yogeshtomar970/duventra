@@ -2,7 +2,7 @@ import API_BASE_URL from "../config/api.js";
 import React, { useState, useEffect } from "react";
 import "../UploadPost.css";
 import { useNavigate } from "react-router-dom";
-
+import { toast } from "react-toastify";
 export default function UploadPost() {
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
@@ -24,7 +24,7 @@ export default function UploadPost() {
       return;
     }
     if (user.role !== "society") {
-      alert(
+      toast.error(
         "Only society accounts can upload posts. Students can upload news.",
       );
       navigate("/upload-news");
