@@ -1,7 +1,7 @@
 import API_BASE_URL from "../config/api.js";
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-
+import { toast } from "react-toastify";
 import Navbar from "./Navbar";
 import BottomNav from "./BottomNav";
 import ProfileCard from "./ProfileCard";
@@ -92,7 +92,7 @@ export default function SocietyPublicProfile() {
 
   const handleToggleJoin = async () => {
     const myId = getMyId();
-    if (!myId) return alert("Please login first");
+    if (!myId) return  toast.info("Please login first");
     if (myId === societyId) return;
     setJoinLoading(true);
     const token = localStorage.getItem("token");
