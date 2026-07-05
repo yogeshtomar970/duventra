@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import API_BASE_URL from "../config/api.js";
 import "../styles/EditProfileModal.css";
-
+import { toast } from "react-toastify";
 export default function EditProfileModal({ onClose, onSocietyUpdate, society }) {
   const [modalType, setModalType] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [bio, setBio] = useState(society?.bio || "");
 
   const handleSaveImage = async () => {
-    if (!selectedImage) return alert("Select image first");
+    if (!selectedImage) return toast.info("Select image first");
     const user = JSON.parse(localStorage.getItem("user"));
     const formData = new FormData();
     formData.append("profilePic", selectedImage);
@@ -19,7 +19,7 @@ export default function EditProfileModal({ onClose, onSocietyUpdate, society }) 
       });
       const data = await res.json();
       if (data.success) {
-        alert("Profile image updated");
+        toast.success("Profile image updated");
         onSocietyUpdate(data.data);
         onClose();
       }
@@ -36,7 +36,7 @@ export default function EditProfileModal({ onClose, onSocietyUpdate, society }) 
       });
       const data = await res.json();
       if (data.success) {
-        alert("Bio updated");
+        toast.success("Bio updated");
         onSocietyUpdate(data.data);
         onClose();
       }
