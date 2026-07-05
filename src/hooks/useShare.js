@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 /**
  * useShare
@@ -16,7 +17,7 @@ export default function useShare(postId) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      alert(shareUrl);
+      toast.info(shareUrl);
     }
   };
 
