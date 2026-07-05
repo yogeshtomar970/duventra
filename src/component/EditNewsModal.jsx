@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { FaTimes } from "react-icons/fa";
 import API_BASE_URL from "../config/api.js";
 import "../styles/EditNewsModal.css";
-
+import { toast } from "react-toastify";
 /**
  * EditNewsModal
  * Edit description + image for a news item.
@@ -21,7 +21,7 @@ export default function EditNewsModal({ item, userId, onUpdated, onClose }) {
   };
 
   const handleUpdate = async () => {
-    if (!editDesc.trim()) return alert("Description cannot be empty");
+    if (!editDesc.trim()) return toast.info("Description cannot be empty");
     setSaving(true);
      const token = localStorage.getItem("token");
     try {
@@ -42,9 +42,9 @@ export default function EditNewsModal({ item, userId, onUpdated, onClose }) {
         onUpdated?.({ ...item, description: editDesc, image: data.news?.image || item.image });
         onClose();
       } else {
-        alert(data.message || "Update failed");
+        toast.error(data.message || "Update failed");
       }
-    } catch { alert("Server error"); }
+    } catch { toast.error("Server error"); }
     finally { setSaving(false); }
   };
 
