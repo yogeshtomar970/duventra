@@ -1,7 +1,7 @@
 import API_BASE_URL from "../config/api.js";
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-
+import { toast } from "react-toastify";
 import Navbar from "./Navbar";
 import BottomNav from "./BottomNav";
 import StudentProfileCard from "./StudentProfileCard";
@@ -91,7 +91,7 @@ export default function StudentPublicProfile() {
 
   const handleToggleFollow = async () => {
     const me = getLoggedInUser();
-    if (!me) return alert("Please login first");
+    if (!me) return  toast.info("Please login first");
     if (!student?._id) return;
     const isSociety = !!me.societyId;
     const myId = isSociety ? me.societyId : me.id;
