@@ -273,7 +273,7 @@
   font-weight: 600;
   font-family: 'Plus Jakarta Sans', sans-serif;
   cursor: pointer;
-  margin-top: auto;   /* ← hamesha card bottom pe */
+  margin-top:5px ;   /* ← hamesha card bottom pe */
   flex-shrink: 0;
   transition: background .14s;
   background: #b5651d;
