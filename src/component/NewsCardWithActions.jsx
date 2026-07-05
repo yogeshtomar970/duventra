@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { resolveImg } from "../newsHelpers.js";
 
@@ -10,6 +10,8 @@ import DotMenu from "./DotMenu";
 import NewsCardActions from "./NewsCardActions";
 
 import useNewsCard from "../hooks/useNewsCard";
+
+const COLLAPSED_HEIGHT = 55; // px — NewsCard se same
 
 export default function NewsCardWithActions({ item, userId, onUpdated, onDeleted }) {
   const navigate = useNavigate();
@@ -23,10 +25,32 @@ export default function NewsCardWithActions({ item, userId, onUpdated, onDeleted
     handleLike, handleDelete, canModify,
   } = useNewsCard({ item, onDeleted });
 
+  const [expanded, setExpanded] = useState(false);
+  const [overflow, setOverflow] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+  const descRef = useRef(null);
+
+  useEffect(() => {
+    if (descRef.current) {
+      setOverflow(descRef.current.scrollHeight > COLLAPSED_HEIGHT + 4);
+    }
+  }, [item?.description]);
+
   if (!item) return null;
 
   const imgSrc    = resolveImg(item.image);
   const authorImg = resolveImg(item.userImage);
+
+  const isMobile = () => window.innerWidth < 768;
+
+  const handleReadMore = (e) => {
+    e.stopPropagation();
+    if (isMobile()) {
+      setExpanded((p) => !p);
+    } else {
+      setShowPopup(true);
+    }
+  };
 
   const handleAuthorClick = () => {
     if (!item.recipientId) return;
@@ -75,8 +99,21 @@ export default function NewsCardWithActions({ item, userId, onUpdated, onDeleted
           </div>
         </div>
 
-        {/* Description */}
-        <p className="nc-card-desc">{item.description}</p>
+        {/* Description with Read more */}
+        <div className="nc-desc-wrap">
+          <p
+            ref={descRef}
+            className="nc-card-desc"
+            style={{ maxHeight: expanded ? "none" : COLLAPSED_HEIGHT, overflow: "hidden" }}
+          >
+            {item.description}
+          </p>
+          {overflow && (
+            <button className="nc-read-more-btn" onClick={handleReadMore}>
+              {expanded ? "Read less ▲" : "Read more ▼"}
+            </button>
+          )}
+        </div>
 
         {/* Actions */}
         <NewsCardActions
@@ -88,6 +125,30 @@ export default function NewsCardWithActions({ item, userId, onUpdated, onDeleted
           onImage={() => setShowImage(true)}
         />
       </article>
+
+      {/* PC Popup */}
+      {showPopup && (
+        <div className="nc-popup-overlay" onClick={() => setShowPopup(false)}>
+          <div className="nc-popup-box" onClick={(e) => e.stopPropagation()}>
+            <div className="nc-popup-header">
+              <div className="nc-author-row" onClick={handleAuthorClick} style={{ cursor: item.recipientId ? "pointer" : "default" }}>
+                {authorImg
+                  ? <img src={authorImg} alt={item.userName} className="nc-author-avatar" />
+                  : <div className="nc-author-avatar nc-avatar-fallback">{(item.userName || "U")[0].toUpperCase()}</div>
+                }
+                <div className="nc-author-info">
+                  <span className="nc-author-name">{item.userName || item.uploadedBy}</span>
+                  <span className="nc-author-role">{item.collegeName || item.uploadedBy || ""}</span>
+                </div>
+              </div>
+              <button className="nc-popup-close" onClick={() => setShowPopup(false)}>✕</button>
+            </div>
+            <div className="nc-popup-body">
+              <p className="nc-popup-desc">{item.description}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showComments && <CommentPanel newsId={item._id} onClose={() => setShowComments(false)} />}
       {showShare    && <ShareSheet item={item} onClose={() => setShowShare(false)} />}
