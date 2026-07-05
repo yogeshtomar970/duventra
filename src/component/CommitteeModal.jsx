@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import API_BASE_URL from "../config/api.js";
 import "../styles/CommitteeModal.css";
-
+import { toast } from "react-toastify";
+import confirmToast from "../utils/confirmToast.jsx";
 const getImageUrl = (url, fallback) => {
   if (!url) return fallback;
   if (url.startsWith("http")) return url;
@@ -42,13 +43,13 @@ export default function CommitteeModal({ committee, onClose, onSocietyUpdate }) 
         setFoundStudent(data.data);
         setNameResults([]);
       } else {
-        alert("Student not found");
+        toast.error("Student not found");
       }
     } catch {}
   };
 
   const handleSearchByName = async () => {
-    if (searchName.trim().length < 2) return alert("Write at least 2 characters.");
+    if (searchName.trim().length < 2) return toast.info("Write at least 2 characters.");
     try {
       const res = await fetch(
         `${API_BASE_URL}/api/student/search/by-name?name=${encodeURIComponent(searchName)}`
@@ -58,7 +59,7 @@ export default function CommitteeModal({ committee, onClose, onSocietyUpdate }) 
         setNameResults(data.data);
         setFoundStudent(null);
       } else {
-        alert("No student was found.");
+        toast.error("No student was found.");
       }
     } catch {}
   };
@@ -81,7 +82,7 @@ export default function CommitteeModal({ committee, onClose, onSocietyUpdate }) 
   };
 
   const handleRemove = async (studentId) => {
-    if (!window.confirm("Do you want to remove this member from the committee?")) return;
+    if (!(await confirmToast("Do you want to remove this member from the committee?"))) return;
     const user = JSON.parse(localStorage.getItem("user"));
     try {
       const res = await fetch(`${API_BASE_URL}/api/society/committee/${user.id}`, {
@@ -93,10 +94,10 @@ export default function CommitteeModal({ committee, onClose, onSocietyUpdate }) 
       if (data.success) {
         onSocietyUpdate(data.data);
       } else {
-        alert(data.message || "Remove failed");
+         toast.error(data.message || "Remove failed");
       }
     } catch {
-      alert("Server error");
+      toast.error("Server error");
     }
   };
 
