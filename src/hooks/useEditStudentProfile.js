@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "react-toastify";
 import API_BASE_URL from "../config/api.js";
 
 const getUserId = () => {
@@ -37,7 +38,7 @@ export default function useEditStudentProfile({ setStudent }) {
 
   const handleSaveProfile = async () => {
     const userId = getUserId();
-    if (!userId) return alert("User not found");
+    if (!userId) return toast.error("User not found");
     const token = localStorage.getItem("token");
 
     const formData = new FormData();
