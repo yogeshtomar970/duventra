@@ -1,4 +1,6 @@
 import React from "react";
+import { toast } from "react-toastify";
+
 import {
   FaHeart,
   FaRegHeart,
@@ -42,7 +44,7 @@ export default function ECFooter({
         <button
           className="ec-action-btn comment-action"
           onClick={() => {
-            if (!user) { alert("Please log in to comment."); return; }
+            if (!user) { toast.info("Please log in to comment."); return; }
             onCommentClick();
           }}
           title={user ? "Comment" : "Login to comment"}
