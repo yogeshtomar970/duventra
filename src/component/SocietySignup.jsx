@@ -2,7 +2,7 @@ import API_BASE_URL from "../config/api.js";
 import { useState } from "react";
 import "../societysignup.css";
 import { useNavigate } from "react-router-dom";
-
+import { toast } from "react-toastify";
 export default function SocietySignup() {
   const navigate = useNavigate();
 
@@ -68,13 +68,13 @@ export default function SocietySignup() {
       });
       const result = await res.json();
       if (res.ok) {
-        alert(result.message || "Society signup successful");
+        toast.success(result.message || "Society signup successful");
         navigate("/login");
       } else {
-        alert(result.message || "Signup failed");
+        toast.error(result.message || "Signup failed");
       }
     } catch {
-      alert("Server error");
+      toast.error("Server error");
     }
   };
 
