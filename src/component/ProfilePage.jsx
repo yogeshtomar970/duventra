@@ -1,6 +1,8 @@
 import API_BASE_URL from "../config/api.js";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import confirmToast from "../utils/confirmToast.jsx";
 import "../ProfilePage.css";
 
 import BottomNav from "../component/BottomNav";
@@ -276,7 +278,7 @@ export default function ProfilePage() {
       );
       const data = await res.json();
       if (data.success) {
-        alert("Post updated successfully!");
+        toast.success("Post updated successfully!");
         setMyPosts((p) =>
           p.map((post) =>
             post._id === editingPost._id
@@ -291,15 +293,15 @@ export default function ProfilePage() {
         setShowEditPostModal(false);
         setEditingPost(null);
       } else {
-        alert(data.message || "Update failed");
+        toast.error(data.message || "Update failed");
       }
     } catch {
-      alert("Server error");
+      toast.error("Server error");
     }
   };
 
   const handleDeletePost = async (post) => {
-    if (!window.confirm("Do you really want to delete this post?"))
+    if (!(await confirmToast("Do you really want to delete this post?")))
       return;
     const user = JSON.parse(localStorage.getItem("user"));
     const token = localStorage.getItem("token");
@@ -314,13 +316,13 @@ export default function ProfilePage() {
       });
       const data = await res.json();
       if (data.success) {
-        alert("Post deleted!");
+        toast.success("Post deleted!");
         setMyPosts((p) => p.filter((pp) => pp._id !== post._id));
       } else {
-        alert(data.message || "Delete failed");
+        toast.error(data.message || "Delete failed");
       }
     } catch {
-      alert("Server error");
+      toast.error("Server error");
     }
   };
 
