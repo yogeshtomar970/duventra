@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 import API_BASE_URL from "../config/api.js";
 import { getUser } from "../newsHelpers.js";
+import confirmToast from "../utils/confirmToast.jsx";
 
 /**
  * useNewsCard
@@ -58,7 +60,7 @@ export default function useNewsCard({ item, onDeleted }) {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm("Delete this news post?")) return;
+    if (!(await confirmToast("Delete this news post?"))) return;
     const token = localStorage.getItem("token");
     try {
       const res = await fetch(`${API_BASE_URL}/api/news/${item._id}`, {
@@ -71,9 +73,9 @@ export default function useNewsCard({ item, onDeleted }) {
       });
       const data = await res.json();
       if (data.success) onDeleted?.(item._id);
-      else alert(data.message || "Delete failed");
+      else toast.error(data.message || "Delete failed");
     } catch {
-      alert("Server error");
+      toast.error("Server error");
     }
   };
 
