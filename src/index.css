@@ -32,3 +32,36 @@ html {
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
+/* ── Confirm toast (window.confirm replacement) ── */
+.confirm-toast-message {
+  margin: 0 0 10px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #1a1a1a;
+}
+
+.confirm-toast-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.confirm-toast-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.confirm-toast-btn-confirm {
+  background: #e63946;
+  color: #fff;
+}
+
+.confirm-toast-btn-cancel {
+  background: #eee;
+  color: #333;
+}
