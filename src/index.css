@@ -35,7 +35,7 @@ html {
 
 /* ── Confirm toast (window.confirm replacement) ── */
 .confirm-toast-message {
-  margin: 5 0 10px;
+  margin: 0 0 10px;
   font-size: 14px;
   line-height: 1.4;
   color: #1a1a1a;
