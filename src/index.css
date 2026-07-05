@@ -57,11 +57,19 @@ html {
 }
 
 .confirm-toast-btn-confirm {
-  background: #e63946;
-  color: #fff;
+    background: green;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    width: 50px;
+    height: 26px;
 }
 
 .confirm-toast-btn-cancel {
-  background: #eee;
-  color: #333;
+  background: red;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    width: 55px;
+    height: 26px;
 }
