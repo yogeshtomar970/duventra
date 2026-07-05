@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import API_BASE_URL from "../config/api.js";
 
 /**
@@ -23,7 +24,7 @@ export default function useLogin() {
       const result = await res.json();
 
       if (res.ok) {
-        alert(result.message);
+        toast.success(result.message);
         
         localStorage.setItem("token", result.token);
         
@@ -34,10 +35,10 @@ export default function useLogin() {
 
         navigate("/");
       } else {
-        alert(result.message || "Login failed");
+        toast.error(result.message || "Login failed");
       }
     } catch {
-      alert("Server error");
+      toast.error("Server error");
     }
   };
 
