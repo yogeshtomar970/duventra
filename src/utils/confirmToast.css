@@ -1,0 +1,40 @@
+/* ── Confirm toast (window.confirm replacement) ── */
+.confirm-toast-message {
+  margin: 0 0 10px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #1a1a1a;
+}
+
+.confirm-toast-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.confirm-toast-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.confirm-toast-btn-confirm {
+  background: green;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  width: 50px;
+  height: 26px;
+}
+
+.confirm-toast-btn-cancel {
+  background: red;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  width: 55px;
+  height: 26px;
+}

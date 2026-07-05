@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-
+import "./confirmToast.css";
 /**
  * confirmToast(message)
  * window.confirm() ka drop-in replacement, react-toastify pe based.
