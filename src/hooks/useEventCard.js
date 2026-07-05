@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 import API_BASE_URL from "../config/api.js";
 
 /**
@@ -76,7 +77,7 @@ export default function useEventCard({ postId, societyId }) {
 
   // ── Handle like ────────────────────────────────────────
   const handleLike = async () => {
-    if (!user) { alert("Please log in to like posts."); return; }
+    if (!user) { toast.info("Please log in to like posts."); return; }
     if (!myId || likeLoading) return;
 
     const token = localStorage.getItem("token");
