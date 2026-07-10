@@ -4,7 +4,7 @@ import { FaHome, FaUser, FaEnvelope } from "react-icons/fa";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faNewspaper } from "@fortawesome/free-solid-svg-icons";
 
-export default function NavBarlinksbottom({ profilePath, menuOpen, onFabClick }) {
+export default function NavBarlinksbottom({ profilePath }) {
   const navClass = ({ isActive }) => (isActive ? "icon active" : "icon");
   const navigate = useNavigate();
   const location = useLocation();
