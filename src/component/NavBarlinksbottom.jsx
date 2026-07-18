@@ -3,6 +3,7 @@ import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { FaHome, FaUser, FaEnvelope } from "react-icons/fa";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faNewspaper } from "@fortawesome/free-solid-svg-icons";
+import { FaBriefcase } from "react-icons/fa";
 
 export default function NavBarlinksbottom({ profilePath }) {
   const navClass = ({ isActive }) => (isActive ? "icon active" : "icon");
@@ -19,9 +20,10 @@ export default function NavBarlinksbottom({ profilePath }) {
       return;
     }
     const currentPath = location.pathname;
-    const isSame = path === "/"
-      ? currentPath === "/"
-      : currentPath === path || currentPath.startsWith(path);
+    const isSame =
+      path === "/"
+        ? currentPath === "/"
+        : currentPath === path || currentPath.startsWith(path);
     if (isSame) {
       e.preventDefault();
       window.location.reload();
@@ -30,11 +32,20 @@ export default function NavBarlinksbottom({ profilePath }) {
 
   return (
     <nav className="bottom-nav">
-      <NavLink to="/" end className={navClass} onClick={(e) => handleClick(e, "/")}>
+      <NavLink
+        to="/"
+        end
+        className={navClass}
+        onClick={(e) => handleClick(e, "/")}
+      >
         <FaHome />
       </NavLink>
 
-      <NavLink to="/news" className={navClass} onClick={(e) => handleClick(e, "/news")}>
+      <NavLink
+        to="/news"
+        className={navClass}
+        onClick={(e) => handleClick(e, "/news")}
+      >
         <FontAwesomeIcon icon={faNewspaper} />
       </NavLink>
 
@@ -51,6 +62,15 @@ export default function NavBarlinksbottom({ profilePath }) {
         className={navClass}
         onClick={(e) => handleClick(e, profilePath, true)}
       >
+      <NavLink
+        to="/placement"
+        className={navClass}
+        onClick={(e) => handleClick(e, "/placement", true)}
+        >
+          
+        <FaBriefcase />
+        </NavLink>
+
         <FaUser />
       </NavLink>
     </nav>
