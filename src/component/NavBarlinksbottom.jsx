@@ -1,9 +1,8 @@
 import React from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
-import { FaHome, FaUser, FaEnvelope } from "react-icons/fa";
+import { FaHome, FaUser, FaEnvelope, FaBriefcase } from "react-icons/fa";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faNewspaper } from "@fortawesome/free-solid-svg-icons";
-import { FaBriefcase } from "react-icons/fa";
 
 export default function NavBarlinksbottom({ profilePath }) {
   const navClass = ({ isActive }) => (isActive ? "icon active" : "icon");
@@ -63,12 +62,19 @@ export default function NavBarlinksbottom({ profilePath }) {
         onClick={(e) => handleClick(e, profilePath, true)}
       >
       <NavLink
-        to="/placement"
-        className={navClass}
-        onClick={(e) => handleClick(e, "/placement", true)}
+      to="/placement"
+      className={navClass}
+      onClick={(e) => handleClick(e, "/placement", true)}
+    >
+      <FaBriefcase />
+    </NavLink>
+
+        <NavLink
+          to={profilePath}
+          className={navClass}
+          onClick={(e) => handleClick(e, profilePath, true)}
         >
-          
-        <FaBriefcase />
+          <FaBriefcase />
         </NavLink>
 
         <FaUser />
