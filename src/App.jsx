@@ -28,6 +28,8 @@ import PostByLink from "./component/PostByLink";
 // ✅ NEW: Install guide import
 import InstallGuide from "./component/InstallGuide";
 
+import PlacementCell from "./component/PlacementCell"; // For Placement Cell
+
 // ── Guard: login nahi hai toh /login par redirect ──
 function ProtectedRoute({ children }) {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -96,6 +98,7 @@ function App() {
         <Route path="/societyprofilelink" element={<ProtectedRoute><div className="page-enter"><SocietyProfilePageLink /></div></ProtectedRoute>} />
         <Route path="/upload" element={<ProtectedRoute><div className="page-enter"><UploadPost /></div></ProtectedRoute>} />
         <Route path="/upload-news" element={<ProtectedRoute><div className="page-enter"><UploadNews /></div></ProtectedRoute>} />
+        <Route path="/placement" element={<ProtectedRoute><div className="page-enter"><PlacementCell /></div></ProtectedRoute>} />
       </Routes>
     </Router>
   );
