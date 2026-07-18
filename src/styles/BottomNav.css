@@ -24,6 +24,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: 1;
   width: 42px; height: 42px;
   border-radius: 12px;
   font-size: 20px;
