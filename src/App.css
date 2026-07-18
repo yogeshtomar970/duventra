@@ -6,3 +6,4 @@ a      { text-decoration: none; color: inherit; }
 body.no-scroll { overflow: hidden; }
 .app-container  { min-height: 100vh; display: flex; flex-direction: column; }
 .main-section   { flex: 1; display: flex; flex-direction: column; align-items: center; width: 100%; }
+
