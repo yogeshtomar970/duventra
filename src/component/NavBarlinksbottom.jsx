@@ -56,11 +56,12 @@ export default function NavBarlinksbottom({ profilePath }) {
         <FaEnvelope />
       </NavLink>
 
-      <NavLink
+      {/* <NavLink
         to={profilePath}
         className={navClass}
         onClick={(e) => handleClick(e, profilePath, true)}
-      >
+      > */}
+
       <NavLink
       to="/placement"
       className={navClass}
@@ -74,9 +75,7 @@ export default function NavBarlinksbottom({ profilePath }) {
           className={navClass}
           onClick={(e) => handleClick(e, profilePath, true)}
         >
-          <FaBriefcase />
-        </NavLink>
-
+        
         <FaUser />
       </NavLink>
     </nav>
