@@ -395,17 +395,16 @@ export default function PlacementCell() {
 
   // Delete job
   const handleDelete = async (jobId) => {
-    if (!window.confirm("Is job ko delete karna chahte ho?")) return;
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/placement/jobs/${jobId}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ societyId: user.societyId }),
-      });
-      const data = await res.json();
-      if (data.success) setJobs(prev => prev.filter(j => j._id !== jobId));
-    } catch (e) { alert("Error deleting job"); }
-  };
+  if (!window.confirm("Want to Delete this job?")) return;
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/placement/jobs/${jobId}/${user.societyId}`, {
+      method: "DELETE",
+    });
+    const data = await res.json();
+    if (data.success) setJobs(prev => prev.filter(j => j._id !== jobId));
+    else alert(data.message);
+  } catch (e) { alert("Error deleting job"); }
+};
 
   // Apply
   const handleApply = async (formData) => {
