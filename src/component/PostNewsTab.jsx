@@ -27,10 +27,8 @@ export default function PostNewsTab({
 
   return (
     <div className="pnt-card">
-
       {/* ── Header with toggle ── */}
       <div className="pnt-header">
-       
         <div className="pnt-toggle">
           <button
             className={`pnt-tog ${activeTab === "post" ? "pnt-tog--active" : ""}`}
@@ -44,12 +42,17 @@ export default function PostNewsTab({
           >
             News
           </button>
+          <button
+            className={activeTab === "jobs" ? "active-btn" : ""}
+            onClick={() => setActiveTab("jobs")}
+          >
+            Jobs
+          </button>
         </div>
       </div>
 
       {/* ── Body ── */}
       <div className="pnt-body">
-
         {activeTab === "post" && (
           <div className="post-grid">
             {myPosts.length === 0 ? (
@@ -95,6 +98,11 @@ export default function PostNewsTab({
           </div>
         )}
 
+        {activeTab === "jobs" && (
+          <div className="job-section">
+            {/* society ki posted jobs yahan dikhao */}
+          </div>
+        )}
       </div>
     </div>
   );

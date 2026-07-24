@@ -50,6 +50,21 @@ export default function ProfilePage() {
   const [studentSuggestions, setStudentSuggestions] = useState([]);
   const [studentFollowing, setStudentFollowing] = useState([]);
 
+  // for jobs
+  const [myJobs, setMyJobs] = useState([]);
+
+  
+  //logic for jobs
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user?.societyId) return;
+    fetch(`${API_BASE_URL}/api/placement/jobs/society/${user.societyId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) setMyJobs(data.data);
+      })
+      .catch(() => {});
+  }, []);
 
   // ── Sidebar scroll lock ──
   useEffect(() => {
@@ -117,11 +132,15 @@ export default function ProfilePage() {
     if (!user?.societyId) return;
     fetch(`${API_BASE_URL}/api/student/suggestions/${user.societyId}`)
       .then((r) => r.json())
-      .then((data) => { if (data.success) setStudentSuggestions(data.data); })
+      .then((data) => {
+        if (data.success) setStudentSuggestions(data.data);
+      })
       .catch(() => {});
     fetch(`${API_BASE_URL}/api/student/following/${user.societyId}`)
       .then((r) => r.json())
-      .then((data) => { if (data.success) setStudentFollowing(data.data); })
+      .then((data) => {
+        if (data.success) setStudentFollowing(data.data);
+      })
       .catch(() => {});
   }, []);
 
@@ -210,8 +229,15 @@ export default function ProfilePage() {
     const token = localStorage.getItem("token");
     const res = await fetch(`${API_BASE_URL}/api/student/follow`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ myId: user.societyId, targetId: item._id.toString(), followerType: "society" }),
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        myId: user.societyId,
+        targetId: item._id.toString(),
+        followerType: "society",
+      }),
     });
     const data = await res.json();
     if (data.followed) {
@@ -227,8 +253,14 @@ export default function ProfilePage() {
     if (isJoined) {
       const res = await fetch(`${API_BASE_URL}/api/student/unfollow`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ myId: user.societyId, targetId: item._id.toString() }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          myId: user.societyId,
+          targetId: item._id.toString(),
+        }),
       });
       const data = await res.json();
       if (!data.followed) {
@@ -238,8 +270,15 @@ export default function ProfilePage() {
     } else {
       const res = await fetch(`${API_BASE_URL}/api/student/follow`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ myId: user.societyId, targetId: item._id.toString(), followerType: "society" }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          myId: user.societyId,
+          targetId: item._id.toString(),
+          followerType: "society",
+        }),
       });
       const data = await res.json();
       if (data.followed) {
@@ -326,7 +365,7 @@ export default function ProfilePage() {
     }
   };
 
-if (loading) return <FeedLoader />;
+  if (loading) return <FeedLoader />;
 
   return (
     <>
@@ -387,18 +426,32 @@ if (loading) return <FeedLoader />;
           studentFollowing={studentFollowing}
           suggestions={suggestions}
           studentSuggestions={studentSuggestions}
-          isJoinedSociety={(item) => following.some((f) => f.societyId === item.societyId)}
-          isJoinedStudent={(item) => studentFollowing.some((f) => f._id === item._id)}
+          isJoinedSociety={(item) =>
+            following.some((f) => f.societyId === item.societyId)
+          }
+          isJoinedStudent={(item) =>
+            studentFollowing.some((f) => f._id === item._id)
+          }
           onJoinSociety={(item) => {
-            const isJoined = following.some((f) => f.societyId === item.societyId);
-            isJoined ? handleToggleFollowing(item) : handleJoinFromSuggestion(item);
+            const isJoined = following.some(
+              (f) => f.societyId === item.societyId,
+            );
+            isJoined
+              ? handleToggleFollowing(item)
+              : handleJoinFromSuggestion(item);
           }}
           onJoinStudent={(item) => {
             const isJoined = studentFollowing.some((f) => f._id === item._id);
-            isJoined ? handleToggleStudentFollowing(item) : handleJoinStudentFromSuggestion(item);
+            isJoined
+              ? handleToggleStudentFollowing(item)
+              : handleJoinStudentFromSuggestion(item);
           }}
-          onSocietyClick={(item) => navigate(`/society-profile?id=${item.societyId}`)}
-          onStudentClick={(item) => navigate(`/student-profile?id=${item.userId}`)}
+          onSocietyClick={(item) =>
+            navigate(`/society-profile?id=${item.societyId}`)
+          }
+          onStudentClick={(item) =>
+            navigate(`/student-profile?id=${item.userId}`)
+          }
         />
         {/* ── Post / News Tab ── */}
         <PostNewsTab
