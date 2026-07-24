@@ -109,10 +109,10 @@ export default function PostNewsTab({
                   key={job._id}
                   style={{
                     background: "#f9f9f9",
-                    borderRadius: 12,
+                    // borderRadius: 12,
                     padding: "12px 14px",
                     marginBottom: 10,
-                    border: "1px solid #eee",
+                    // border: "1px solid #eee",
                   }}
                 >
                   <h4 style={{ margin: "0 0 4px", fontSize: 15 }}>
