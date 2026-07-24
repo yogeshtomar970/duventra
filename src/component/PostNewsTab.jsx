@@ -17,6 +17,7 @@ export default function PostNewsTab({
   setActiveTab,
   myPosts,
   myNews,
+  myJobs,
   society,
   onEditPost,
   onDeletePost,
@@ -100,7 +101,34 @@ export default function PostNewsTab({
 
         {activeTab === "jobs" && (
           <div className="job-section">
-            {/* society ki posted jobs yahan dikhao */}
+            {!myJobs || myJobs.length === 0 ? (
+              <p className="pnt-empty">No jobs posted yet</p>
+            ) : (
+              myJobs.map((job) => (
+                <div
+                  key={job._id}
+                  style={{
+                    background: "#f9f9f9",
+                    borderRadius: 12,
+                    padding: "12px 14px",
+                    marginBottom: 10,
+                    border: "1px solid #eee",
+                  }}
+                >
+                  <h4 style={{ margin: "0 0 4px", fontSize: 15 }}>
+                    {job.title}
+                  </h4>
+                  <span
+                    style={{ fontSize: 12, color: "#4f46e5", fontWeight: 600 }}
+                  >
+                    {job.jobType}
+                  </span>
+                  <p style={{ fontSize: 12, color: "#888", margin: "4px 0 0" }}>
+                    {job.location}
+                  </p>
+                </div>
+              ))
+            )}
           </div>
         )}
       </div>

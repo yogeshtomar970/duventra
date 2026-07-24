@@ -53,7 +53,7 @@ export default function ProfilePage() {
   // for jobs
   const [myJobs, setMyJobs] = useState([]);
 
-  
+
   //logic for jobs
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -459,6 +459,7 @@ export default function ProfilePage() {
           setActiveTab={setActiveTab}
           myPosts={myPosts}
           myNews={myNews}
+          myJobs={myJobs} 
           society={society}
           onEditPost={handleEditPostOpen}
           onDeletePost={handleDeletePost}
