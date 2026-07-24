@@ -112,6 +112,12 @@
   gap: 6px;
 }
 
+.job-section {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
 /* Cards fill their column — no artificial max-width */
 .news-section .nc-card {
   width: 100%;
