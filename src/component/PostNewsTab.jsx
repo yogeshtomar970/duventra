@@ -107,15 +107,15 @@ export default function PostNewsTab({
               myJobs.map((job) => (
                 <div
                   key={job._id}
-                  style={{
-                    background: "#f9f9f9",
-                    borderRadius: 12,
-                    padding: "12px 14px",
-                    marginBottom: 10,
-                    border: "1px solid #eee",
-                  }}
+                  // style={{
+                  //   background: "#f9f9f9",
+                  //   borderRadius: 12,
+                  //   padding: "12px 14px",
+                  //   marginBottom: 10,
+                  //   border: "1px solid #eee",
+                  // }}
                 >
-                  <h4 style={{ margin: "0 0 4px", fontSize: 15 }}>
+                  {/* <h4 style={{ margin: "0 0 4px", fontSize: 15 }}>
                     {job.title}
                   </h4>
                   <span
@@ -125,7 +125,7 @@ export default function PostNewsTab({
                   </span>
                   <p style={{ fontSize: 12, color: "#888", margin: "4px 0 0" }}>
                     {job.location}
-                  </p>
+                  </p> */}
                 </div>
               ))
             )}
