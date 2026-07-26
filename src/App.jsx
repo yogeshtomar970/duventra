@@ -29,6 +29,7 @@ import PostByLink from "./component/PostByLink";
 import InstallGuide from "./component/InstallGuide";
 
 import PlacementCell from "./component/PlacementCell"; // For Placement Cell
+import JobPage from "./component/JobPage"; // For Job Page
 
 // ── Guard: login nahi hai toh /login par redirect ──
 function ProtectedRoute({ children }) {
@@ -99,6 +100,7 @@ function App() {
         <Route path="/upload" element={<ProtectedRoute><div className="page-enter"><UploadPost /></div></ProtectedRoute>} />
         <Route path="/upload-news" element={<ProtectedRoute><div className="page-enter"><UploadNews /></div></ProtectedRoute>} />
         <Route path="/placement" element={<ProtectedRoute><div className="page-enter"><PlacementCell /></div></ProtectedRoute>} />
+        <Route path="/jobs" element={<ProtectedRoute><div className="page-enter"><JobPage /></div></ProtectedRoute>} />
       </Routes>
     </Router>
   );
