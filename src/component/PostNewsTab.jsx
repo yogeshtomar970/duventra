@@ -99,7 +99,7 @@ export default function PostNewsTab({
           </div>
         )}
 
-        {activeTab === "jobs" && (
+        {/* {activeTab === "jobs" && (
           <div className="job-section">
             {!myJobs || myJobs.length === 0 ? (
               <p className="pnt-empty">No jobs posted yet</p>
@@ -130,7 +130,7 @@ export default function PostNewsTab({
               ))
             )}
           </div>
-        )} 
+        )}  */}
 
         {/* {activeTab === "jobs" && (
           <div className="job-section">
@@ -147,6 +147,49 @@ export default function PostNewsTab({
             )}
           </div>
         )} */}
+
+
+
+        {activeTab === "jobs" && (
+  <div className="job-section">
+    {!myJobs || myJobs.length === 0 ? (
+      <p className="pnt-empty">No jobs posted yet</p>
+    ) : (
+      myJobs.map((job) => (
+        <article key={job._id} className="nc-cards">
+          {/* Header */}
+          <div className="nc-card-header">
+            <div className="nc-author-row">
+              <div className="nc-author-avatar nc-avatar-fallback">
+                {(job.societyName || "S")[0].toUpperCase()}
+              </div>
+              <div className="nc-author-info">
+                <span className="nc-author-name">{job.societyName}</span>
+                <span className="nc-author-role">{job.location || "Delhi, India"}</span>
+              </div>
+            </div>
+            <div className="nc-header-right">
+              <span className="nc-card-date">
+                {new Date(job.createdAt).toLocaleDateString("en-IN", {
+                  day: "numeric", month: "short", year: "numeric",
+                })}
+              </span>
+            </div>
+          </div>
+
+          {/* Description */}
+          <div className="nc-desc-wrap">
+            <p className="nc-card-desc">{job.title}</p>
+            <span style={{ fontSize: 12, fontWeight: 600, color: "#4f46e5", padding: "0 14px 8px", display: "block" }}>
+              {job.jobType}
+            </span>
+            <p className="nc-card-desc" style={{ color: "#555" }}>{job.description}</p>
+          </div>
+        </article>
+      ))
+    )}
+  </div>
+)}
       </div>
     </div>
   );
