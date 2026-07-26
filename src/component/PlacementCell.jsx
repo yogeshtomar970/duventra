@@ -193,7 +193,7 @@ function ApplyModal({ job, onClose, onSubmit, loading }) {
 // ─── Create Job Modal ───────────────────────────────────
 function CreateJobModal({ onClose, onSave, societyName, societyPic, societyId }) {
   const [step, setStep] = useState(1); // 1=basic info, 2=custom fields
-  const [form, setForm] = useState({ title: "", jobType: "", location: "", description: "", societyId, societyName, societyPic });
+  const [form, setForm] = useState({ title: "", jobType: "", location: "", Salary: "", description: "", societyId, societyName, societyPic });
   const [customFields, setCustomFields] = useState([]);
   const [saving, setSaving] = useState(false);
 
@@ -249,6 +249,12 @@ function CreateJobModal({ onClose, onSave, societyName, societyPic, societyId })
                 <label className="pc-label">Location</label>
                 <input className="pc-input" placeholder="e.g. Delhi, India"
                   value={form.location} onChange={e => setForm(p => ({ ...p, location: e.target.value }))} />
+              </div>
+
+              <div className="pc-form-group">
+                <label className="pc-label">Salary</label>
+                <input className="pc-input" placeholder="e.g. 50,000"
+                  value={form.Salary} onChange={e => setForm(p => ({ ...p, Salary: e.target.value }))} />
               </div>
 
               <div className="pc-form-group">
