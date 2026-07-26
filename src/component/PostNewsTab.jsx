@@ -99,7 +99,7 @@ export default function PostNewsTab({
           </div>
         )}
 
-        {/* {activeTab === "jobs" && (
+        {activeTab === "jobs" && (
           <div className="job-section">
             {!myJobs || myJobs.length === 0 ? (
               <p className="pnt-empty">No jobs posted yet</p>
@@ -130,9 +130,9 @@ export default function PostNewsTab({
               ))
             )}
           </div>
-        )} */}
+        )} 
 
-        {activeTab === "jobs" && (
+        {/* {activeTab === "jobs" && (
           <div className="job-section">
             {!myJobs || myJobs.length === 0 ? (
               <p className="pnt-empty">No jobs posted yet</p>
@@ -146,7 +146,7 @@ export default function PostNewsTab({
               ))
             )}
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );
