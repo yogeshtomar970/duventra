@@ -44,7 +44,7 @@ export default function PostNewsTab({
             News
           </button>
           <button
-            className={activeTab === "jobs" ? "active-btn" : ""}
+            className={`pnt-tog ${activeTab === "jobs" ? "pnt-tog--active" : ""}`}
             onClick={() => setActiveTab("jobs")}
           >
             Jobs
