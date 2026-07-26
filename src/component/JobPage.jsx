@@ -51,7 +51,7 @@ function JobCard({ job, onApply, onHide, onSave, savedIds, hiddenIds, appliedIds
               <FaBriefcase /> {job.jobType}
             </span>
             <span className="jp-meta-item">
-              <FaRupeeSign /> Not disclosed
+              <FaRupeeSign /> {job.Salary || "Negotiable"}
             </span>
             <span className="jp-meta-item">
               <FaMapMarkerAlt /> {job.location || "Delhi, India"}
