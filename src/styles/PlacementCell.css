@@ -11,7 +11,7 @@
 /* ── Top bar ── */
 .pc-top-bar {
   width: 100%;
-  background: #4f46e5;
+  background: rgb(181, 101, 29);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -51,9 +51,9 @@
   font-family: inherit;
 }
 .pc-filter-btn.active {
-  background: #4f46e5;
+  background: rgb(181, 101, 29);
   color: white;
-  border-color: #4f46e5;
+  border-color: rgb(181, 101, 29);
 }
 
 /* ── New Job Button ── */
