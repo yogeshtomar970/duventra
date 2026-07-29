@@ -321,7 +321,7 @@
 /* Apply Button */
 .pc-apply-btn {
   width: 100%;
-  background: #4f46e5;
+  background: rgb(181, 101, 29);
   color: white;
   border: none;
   border-radius: 12px;
