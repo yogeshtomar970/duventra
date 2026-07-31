@@ -40,6 +40,16 @@ export default function SocietyPublicProfile() {
   const [following, setFollowing] = useState([]);
   const [studentFollowing, setStudentFollowing] = useState([]);
 
+  const [myJobs, setMyJobs] = useState([]);
+
+  useEffect(() => {
+  if (!society?.societyId) return;
+  fetch(`${API_BASE_URL}/api/placement/jobs/society/${society.societyId}`)
+    .then(res => res.json())
+    .then(data => { if (data.success) setMyJobs(data.data); })
+    .catch(() => {});
+}, [society]);
+
   const getMyId = () => {
     const user = JSON.parse(localStorage.getItem("user"));
     return user?.societyId || (user?.id ? "student_" + user.id : null);
