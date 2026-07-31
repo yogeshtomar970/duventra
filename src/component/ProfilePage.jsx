@@ -53,7 +53,6 @@ export default function ProfilePage() {
   // for jobs
   const [myJobs, setMyJobs] = useState([]);
 
-
   //logic for jobs
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -459,7 +458,20 @@ export default function ProfilePage() {
           setActiveTab={setActiveTab}
           myPosts={myPosts}
           myNews={myNews}
-          myJobs={myJobs} 
+          myJobs={myJobs}
+          onDeleteJob={async (jobId) => {
+            const user = JSON.parse(localStorage.getItem("user"));
+            const res = await fetch(
+              `${API_BASE_URL}/api/placement/jobs/${jobId}/${user.societyId}`,
+              {
+                method: "DELETE",
+              },
+            );
+            const data = await res.json();
+            if (data.success)
+              setMyJobs((prev) => prev.filter((j) => j._id !== jobId));
+            else toast.error(data.message || "Delete failed");
+          }}
           society={society}
           onEditPost={handleEditPostOpen}
           onDeletePost={handleDeletePost}

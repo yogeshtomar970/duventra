@@ -21,6 +21,8 @@ export default function PostNewsTab({
   society,
   onEditPost,
   onDeletePost,
+  onEditJob,
+  onDeleteJob,
   onNewsUpdated,
   onNewsDeleted,
 }) {
@@ -105,6 +107,60 @@ export default function PostNewsTab({
               <p className="pnt-empty">No jobs posted yet</p>
             ) : (
               myJobs.map((job) => (
+                <article key={job._id} className="nc-cards">
+                  <div className="nc-card-header">
+                    <div className="nc-author-row">
+                      <div className="nc-author-avatar nc-avatar-fallback">
+                        {(job.societyName || "S")[0].toUpperCase()}
+                      </div>
+                      <div className="nc-author-info">
+                        <span className="nc-author-name">{job.title}</span>
+                        <span
+                          className="nc-author-role"
+                          style={{ color: "#4f46e5" }}
+                        >
+                          {job.jobType}
+                        </span>
+                      </div>
+                    </div>
+                    {onDeleteJob && (
+                      <div className="nc-header-right">
+                        <button
+                          onClick={() => onDeleteJob(job._id)}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "#f87171",
+                            cursor: "pointer",
+                            fontSize: 16,
+                          }}
+                        >
+                          🗑
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <div className="nc-desc-wrap">
+                    <p className="nc-card-desc">{job.description}</p>
+                    <p
+                      className="nc-card-desc"
+                      style={{ color: "#888", fontSize: 12 }}
+                    >
+                      📍 {job.location}
+                    </p>
+                  </div>
+                </article>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* {activeTab === "jobs" && (
+          <div className="job-section">
+            {!myJobs || myJobs.length === 0 ? (
+              <p className="pnt-empty">No jobs posted yet</p>
+            ) : (
+              myJobs.map((job) => (
                 <div
                   key={job._id}
                   style={{
@@ -130,8 +186,7 @@ export default function PostNewsTab({
               ))
             )}
           </div>
-        )} 
-        
+        )}  */}
       </div>
     </div>
   );
