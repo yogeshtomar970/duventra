@@ -214,6 +214,7 @@ export default function SocietyPublicProfile() {
           setActiveTab={setActiveTab}
           myPosts={posts}
           myNews={news}
+          myJobs={myJobs}
           society={society}
           onEditPost={null}
           onDeletePost={null}
