@@ -499,7 +499,7 @@ export default function PlacementCell() {
           onClose={() => setViewJob(null)}
           alreadyApplied={appliedIds.includes(viewJob._id)}
           onApply={() => {
-            if (isAdmin) return alert("Admin apply nahi kar sakta");
+            if (isAdmin) return alert("Admin does not apply ");
             setApplyJob(viewJob);
           }}
         />
