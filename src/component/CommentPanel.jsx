@@ -34,9 +34,13 @@ export default function CommentPanel({ newsId, onClose }) {
     if (!text.trim() || !user) return;
     setPosting(true);
     try {
+      const token = localStorage.getItem("token");
       const res = await fetch(`${API_BASE_URL}/api/news/comment/add`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           newsId,
           userId,
