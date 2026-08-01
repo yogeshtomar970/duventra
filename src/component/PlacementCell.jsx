@@ -10,6 +10,16 @@ import "../styles/PlacementCell.css";
 // ─── Helpers ───────────────────────────────────────────
 const JOB_TYPES = ["Full-time", "Part-time", "Internship", "Freelance", "Contract"];
 
+// Agar user "forms.gle/xxx" jaisa bina protocol ka link daale, to browser use
+// current domain ka relative path samajh leta hai. Ye helper protocol ensure
+// karta hai taaki link hamesha sahi jagah (external site) khule.
+const normalizeUrl = (url) => {
+  const trimmed = (url || "").trim();
+  if (!trimmed) return "";
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+};
+
 function timeAgo(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime();
   const d = Math.floor(diff / 86400000);
@@ -210,7 +220,7 @@ function CreateJobModal({ onClose, onSave, societyName, societyPic, societyId })
 
   const handleSave = async () => {
     setSaving(true);
-    await onSave({ ...form, customFields });
+    await onSave({ ...form, formLink: normalizeUrl(form.formLink), customFields });
     setSaving(false);
   };
 
@@ -267,7 +277,7 @@ function CreateJobModal({ onClose, onSave, societyName, societyPic, societyId })
 
               <div className="pc-form-group">
                 <label className="pc-label">Application Form Link</label>
-                <input className="pc-input" type="url" placeholder="e.g. https://forms.gle/xxxxx"
+                <input className="pc-input" type="text" placeholder="e.g. https://forms.gle/xxxxx"
                   value={form.formLink} onChange={e => setForm(p => ({ ...p, formLink: e.target.value }))} />
                 <p className="pc-field-hint">Agar diya to "Apply Now" par click karte hi student seedha is link par jayega (Google Form waghera).</p>
               </div>
@@ -527,9 +537,11 @@ export default function PlacementCell() {
           onApply={() => {
             if (isAdmin) return alert("Admin does not apply ");
             if (viewJob.formLink) {
-              // Form link diya gaya hai — seedha wahi kholo, aur application
-              // background me record kar do taaki "Already Applied" dikhe
-              window.open(viewJob.formLink, "_blank", "noopener,noreferrer");
+              // Form link diya gaya hai — seedha wahi kholo (normalizeUrl
+              // purane, bina https:// wale links ke liye safety net hai),
+              // aur application background me record kar do taaki
+              // "Already Applied" dikhe
+              window.open(normalizeUrl(viewJob.formLink), "_blank", "noopener,noreferrer");
               recordApplication(viewJob, {});
               setViewJob(null);
             } else {
