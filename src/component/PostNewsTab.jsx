@@ -1,10 +1,12 @@
 import React, { useState } from "react";
+import { FaMapMarkerAlt, FaRegClock } from "react-icons/fa";
 import EventCard from "../component/EventCard";
 import NewsCardWithActions from "../component/NewsCardWithActions";
 import DotMenu from "./DotMenu";
 import EditJobModal from "./EditJobModal";
 import API_BASE_URL from "../config/api.js";
 import "../styles/PostNewsTab.css";
+import "../styles/PlacementCell.css";
 
 const getImageUrl = (url, fallback) => {
   if (!url) return fallback;
@@ -13,6 +15,32 @@ const getImageUrl = (url, fallback) => {
 };
 
 const DEFAULT_AVATAR = "https://randomuser.me/api/portraits/men/1.jpg";
+
+// ── Job card helpers — PlacementCell jaisa hi look yahan bhi ──
+function timeAgo(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const d = Math.floor(diff / 86400000);
+  if (d === 0) return "Today";
+  if (d === 1) return "Yesterday";
+  if (d < 30) return `${d} days ago`;
+  return new Date(dateStr).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+}
+
+const TYPE_COLORS = {
+  "Full-time": "#4f46e5",
+  "Part-time": "#0891b2",
+  "Internship": "#059669",
+  "Freelance": "#d97706",
+  "Contract": "#dc2626",
+};
+
+function SocAvatar({ name = "", pic = "" }) {
+  if (pic) return <img src={pic} alt={name} className="pc-avatar" />;
+  const initials = name.split(" ").slice(0, 2).map(w => w[0]?.toUpperCase() || "").join("");
+  const colors = ["#4f46e5", "#0891b2", "#059669", "#d97706", "#7c3aed"];
+  const bg = colors[name.charCodeAt(0) % colors.length];
+  return <div className="pc-avatar pc-avatar-fallback" style={{ background: bg }}>{initials}</div>;
+}
 
 export default function PostNewsTab({
   activeTab,
@@ -111,25 +139,22 @@ export default function PostNewsTab({
             {!myJobs || myJobs.length === 0 ? (
               <p className="pnt-empty">No jobs posted yet</p>
             ) : (
-              myJobs.map((job) => (
-                <article key={job._id} className="nc-cards">
-                  <div className="nc-card-header">
-                    <div className="nc-author-row">
-                      <div className="nc-author-avatar nc-avatar-fallback">
-                        {(job.societyName || "S")[0].toUpperCase()}
+              myJobs.map((job) => {
+                const typeColor = TYPE_COLORS[job.jobType] || "#4f46e5";
+                return (
+                  <div className="pc-job-card" key={job._id} style={{ cursor: "default" }}>
+                    <div className="pc-job-card-header">
+                      <SocAvatar name={job.societyName} pic={job.societyPic} />
+                      <div className="pc-job-card-info">
+                        <h3 className="pc-job-title">{job.title}</h3>
+                        <span className="pc-job-society" style={{ color: typeColor }}>{job.societyName}</span>
+                        <div className="pc-job-meta">
+                          <span><FaMapMarkerAlt /> {job.location || "Delhi, India"}</span>
+                          <span><FaRegClock /> {job.jobType}</span>
+                        </div>
+                        <p className="pc-job-date">Posted on {timeAgo(job.createdAt)}</p>
                       </div>
-                      <div className="nc-author-info">
-                        <span className="nc-author-name">{job.title}</span>
-                        <span
-                          className="nc-author-role"
-                          style={{ color: "#4f46e5" }}
-                        >
-                          {job.jobType}
-                        </span>
-                      </div>
-                    </div>
-                    {(onDeleteJob || onEditJob) && (
-                      <div className="nc-header-right">
+                      {(onDeleteJob || onEditJob) && (
                         <DotMenu
                           show={openJobMenuId === job._id}
                           setShow={(v) =>
@@ -143,20 +168,11 @@ export default function PostNewsTab({
                           onEdit={() => setEditingJob(job)}
                           onDelete={() => onDeleteJob(job._id)}
                         />
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
-                  <div className="nc-desc-wrap">
-                    <p className="nc-card-desc">{job.description}</p>
-                    <p
-                      className="nc-card-desc"
-                      style={{ color: "#888", fontSize: 12 }}
-                    >
-                      📍 {job.location}
-                    </p>
-                  </div>
-                </article>
-              ))
+                );
+              })
             )}
           </div>
         )}
