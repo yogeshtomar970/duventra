@@ -73,11 +73,36 @@ function JobCard({ job, isAdmin, onView, onDelete }) {
 }
 
 // ─── Job Detail Modal ──────────────────────────────────
-function JobDetailModal({ job, onClose, onApply, alreadyApplied }) {
+function JobDetailModal({ job, onClose, onApply, onConfirmApplied, alreadyApplied }) {
   const [expanded, setExpanded] = useState(false);
+  const [formOpened, setFormOpened] = useState(false);
   const desc = job.description || "";
   const isLong = desc.length > 200;
   const typeColor = TYPE_COLORS[job.jobType] || "#4f46e5";
+
+  const hasFormLink = !!job.formLink;
+
+  const handleClick = () => {
+    if (hasFormLink && !formOpened) {
+      // Step 1: sirf form kholo — apply mark mat karo, modal bhi khula rahega
+      onApply();
+      setFormOpened(true);
+    } else if (hasFormLink && formOpened) {
+      // Step 2: user ne form fill/submit kar liya, ab explicitly confirm kiya
+      onConfirmApplied();
+    } else {
+      // Purana flow — custom-fields modal
+      onApply();
+    }
+  };
+
+  const label = alreadyApplied
+    ? "Already Applied ✓"
+    : hasFormLink && formOpened
+    ? "Mark as Applied ✓"
+    : hasFormLink
+    ? "Apply Now ↗"
+    : "Apply Now";
 
   return (
     <div className="pc-overlay" onClick={onClose}>
@@ -131,13 +156,18 @@ function JobDetailModal({ job, onClose, onApply, alreadyApplied }) {
           )}
         </div>
         <div className="pc-modal-footer">
+          {hasFormLink && formOpened && !alreadyApplied && (
+            <p style={{ fontSize: 13, color: "#888", textAlign: "center", margin: "0 0 8px" }}>
+              Form fill karke submit kar diya? Neeche confirm karo.
+            </p>
+          )}
           <button
             className="pc-apply-btn"
-            onClick={onApply}
+            onClick={handleClick}
             disabled={alreadyApplied}
             style={alreadyApplied ? { background: "#e0e0e0", color: "#888" } : {}}
           >
-            {alreadyApplied ? "Already Applied ✓" : job.formLink ? "Apply Now ↗" : "Apply Now"}
+            {label}
           </button>
         </div>
       </div>
@@ -537,16 +567,16 @@ export default function PlacementCell() {
           onApply={() => {
             if (isAdmin) return alert("Admin does not apply ");
             if (viewJob.formLink) {
-              // Form link diya gaya hai — seedha wahi kholo (normalizeUrl
-              // purane, bina https:// wale links ke liye safety net hai),
-              // aur application background me record kar do taaki
-              // "Already Applied" dikhe
+              // Sirf form kholo — abhi applied mark mat karo, modal bhi
+              // khula rahega taaki user baad me aakar confirm kar sake
               window.open(normalizeUrl(viewJob.formLink), "_blank", "noopener,noreferrer");
-              recordApplication(viewJob, {});
-              setViewJob(null);
             } else {
               setApplyJob(viewJob);
             }
+          }}
+          onConfirmApplied={() => {
+            // User ne form fill/submit karke khud confirm kiya — ab record karo
+            recordApplication(viewJob, {});
           }}
         />
       )}
