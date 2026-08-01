@@ -15,7 +15,7 @@ export default function useNavbar() {
 
   const user       = JSON.parse(localStorage.getItem("user")) || null;
   const role       = user?.role;
-  const recipientId = user?.societyId || user?.id || null;
+  const recipientId = user?.societyId || user?.userId || null;
 
   // Fetch unread count on mount + poll every 30s
   useEffect(() => {
