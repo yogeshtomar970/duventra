@@ -127,7 +127,7 @@ function JobDetailModal({ job, onClose, onApply, alreadyApplied }) {
             disabled={alreadyApplied}
             style={alreadyApplied ? { background: "#e0e0e0", color: "#888" } : {}}
           >
-            {alreadyApplied ? "Already Applied ✓" : "Apply Now"}
+            {alreadyApplied ? "Already Applied ✓" : job.formLink ? "Apply Now ↗" : "Apply Now"}
           </button>
         </div>
       </div>
@@ -193,7 +193,7 @@ function ApplyModal({ job, onClose, onSubmit, loading }) {
 // ─── Create Job Modal ───────────────────────────────────
 function CreateJobModal({ onClose, onSave, societyName, societyPic, societyId }) {
   const [step, setStep] = useState(1); // 1=basic info, 2=custom fields
-  const [form, setForm] = useState({ title: "", jobType: "", location: "", Salary: "", description: "", societyId, societyName, societyPic });
+  const [form, setForm] = useState({ title: "", jobType: "", location: "", Salary: "", description: "", formLink: "", societyId, societyName, societyPic });
   const [customFields, setCustomFields] = useState([]);
   const [saving, setSaving] = useState(false);
 
@@ -263,6 +263,13 @@ function CreateJobModal({ onClose, onSave, societyName, societyPic, societyId })
                   value={form.description} maxLength={500}
                   onChange={e => setForm(p => ({ ...p, description: e.target.value }))} />
                 <p className="pc-char-count">{form.description.length}/500</p>
+              </div>
+
+              <div className="pc-form-group">
+                <label className="pc-label">Application Form Link</label>
+                <input className="pc-input" type="url" placeholder="e.g. https://forms.gle/xxxxx"
+                  value={form.formLink} onChange={e => setForm(p => ({ ...p, formLink: e.target.value }))} />
+                <p className="pc-field-hint">Agar diya to "Apply Now" par click karte hi student seedha is link par jayega (Google Form waghera).</p>
               </div>
 
               {/* Action cards */}
@@ -351,6 +358,7 @@ export default function PlacementCell() {
   const [appliedIds, setAppliedIds] = useState([]);
 
   const user = JSON.parse(localStorage.getItem("user")) || {};
+  const token = localStorage.getItem("token");
   const isAdmin = user?.role === "society"; // society account = admin
 
   useEffect(() => {
@@ -370,9 +378,11 @@ export default function PlacementCell() {
 
   // Fetch my applied jobs
   const fetchApplied = async () => {
-    if (!user?.id) return;
+    if (!user?.id || !token) return;
     try {
-      const res = await fetch(`${API_BASE_URL}/api/placement/applied/${user.id}`);
+      const res = await fetch(`${API_BASE_URL}/api/placement/applied/${user.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const data = await res.json();
       if (data.success) setAppliedIds(data.data.map(a => a.jobId));
     } catch (e) {}
@@ -388,13 +398,18 @@ export default function PlacementCell() {
     try {
       const res = await fetch(`${API_BASE_URL}/api/placement/jobs`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(jobData),
       });
       const data = await res.json();
       if (data.success) {
         setJobs(prev => [data.data, ...prev]);
         setShowCreate(false);
+      } else {
+        alert(data.message || "Error creating job");
       }
     } catch (e) { alert("Error creating job"); }
   };
@@ -403,8 +418,9 @@ export default function PlacementCell() {
   const handleDelete = async (jobId) => {
   if (!window.confirm("Want to Delete this job?")) return;
   try {
-    const res = await fetch(`${API_BASE_URL}/api/placement/jobs/${jobId}/${user.societyId}`, {
+    const res = await fetch(`${API_BASE_URL}/api/placement/jobs/${jobId}`, {
       method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
     });
     const data = await res.json();
     if (data.success) setJobs(prev => prev.filter(j => j._id !== jobId));
@@ -412,30 +428,40 @@ export default function PlacementCell() {
   } catch (e) { alert("Error deleting job"); }
 };
 
-  // Apply
-  const handleApply = async (formData) => {
-    setApplyLoading(true);
+  // Record an application in the backend (used by both the form-link flow and the custom-fields modal flow)
+  const recordApplication = async (job, formData = {}) => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/placement/apply`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
-          jobId: applyJob._id,
-          userId: user.id,
-          userName: user.name,
-          userEmail: user.email,
+          jobId: job._id,
           responses: formData,
         }),
       });
       const data = await res.json();
-      if (data.success) {
-        setAppliedIds(prev => [...prev, applyJob._id]);
-        setApplyJob(null);
-        setViewJob(null);
-        alert("Application submitted! ✅");
-      }
-    } catch (e) { alert("Error applying"); }
-    finally { setApplyLoading(false); }
+      if (data.success) setAppliedIds(prev => [...prev, job._id]);
+      return data.success;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  // Apply (custom-fields modal path)
+  const handleApply = async (formData) => {
+    setApplyLoading(true);
+    const ok = await recordApplication(applyJob, formData);
+    if (ok) {
+      setApplyJob(null);
+      setViewJob(null);
+      alert("Application submitted! ✅");
+    } else {
+      alert("Error applying");
+    }
+    setApplyLoading(false);
   };
 
   const filtered = filter === "All" ? jobs : jobs.filter(j => j.jobType === filter);
@@ -500,7 +526,15 @@ export default function PlacementCell() {
           alreadyApplied={appliedIds.includes(viewJob._id)}
           onApply={() => {
             if (isAdmin) return alert("Admin does not apply ");
-            setApplyJob(viewJob);
+            if (viewJob.formLink) {
+              // Form link diya gaya hai — seedha wahi kholo, aur application
+              // background me record kar do taaki "Already Applied" dikhe
+              window.open(viewJob.formLink, "_blank", "noopener,noreferrer");
+              recordApplication(viewJob, {});
+              setViewJob(null);
+            } else {
+              setApplyJob(viewJob);
+            }
           }}
         />
       )}
