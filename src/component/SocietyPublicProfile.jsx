@@ -133,7 +133,7 @@ export default function SocietyPublicProfile() {
 
   return (
     <>
-      <Navbar toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+      {/* <Navbar toggleSidebar={() => setSidebarOpen(!sidebarOpen)} /> */}
       <BottomNav />
 
       <div className="profile-container">

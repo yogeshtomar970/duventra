@@ -132,7 +132,7 @@ export default function StudentPublicProfile() {
 
   return (
     <>
-      <Navbar toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+      {/* <Navbar toggleSidebar={() => setSidebarOpen(!sidebarOpen)} /> */}
       <BottomNav />
 
       <div className="student-container">
