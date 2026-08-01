@@ -69,8 +69,8 @@ export default function Studentprofile() {
 
   return (
     <>
-      <Navbar toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-      <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      {/* <Navbar toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+      <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} /> */}
       <BottomNav />
 
       <div className="student-container">

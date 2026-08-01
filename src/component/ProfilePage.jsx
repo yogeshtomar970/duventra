@@ -368,8 +368,8 @@ export default function ProfilePage() {
 
   return (
     <>
-      <Navbar toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-      <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      {/* <Navbar toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+      <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} /> */}
       <BottomNav />
 
       <div className="profile-container">
