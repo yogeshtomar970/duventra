@@ -7,7 +7,7 @@ import "../styles/DotMenu.css";
  * Three-dot menu with Edit and Delete options.
  * Only shown to the card owner (canModify).
  */
-export default function DotMenu({ show, setShow, onEdit, onDelete }) {
+export default function DotMenu({ show, setShow, onEdit, onDelete, editLabel = "Edit News", deleteLabel = "Delete News" }) {
   return (
     <div className="dot-menu-wrap">
       <button
@@ -26,14 +26,14 @@ export default function DotMenu({ show, setShow, onEdit, onDelete }) {
               className="dot-menu-item dot-menu-item--edit"
               onClick={() => { setShow(false); onEdit(); }}
             >
-              <FaEdit /> Edit News
+              <FaEdit /> {editLabel}
             </button>
             <div className="dot-menu-divider" />
             <button
               className="dot-menu-item dot-menu-item--delete"
               onClick={() => { setShow(false); onDelete(); }}
             >
-              <FaTrash /> Delete News
+              <FaTrash /> {deleteLabel}
             </button>
           </div>
         </>
