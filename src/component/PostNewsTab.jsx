@@ -4,6 +4,7 @@ import EventCard from "../component/EventCard";
 import NewsCardWithActions from "../component/NewsCardWithActions";
 import DotMenu from "./DotMenu";
 import EditJobModal from "./EditJobModal";
+import JobDetailModal, { SocAvatar, timeAgo, TYPE_COLORS } from "./JobDetailModal";
 import API_BASE_URL from "../config/api.js";
 import "../styles/PostNewsTab.css";
 import "../styles/PlacementCell.css";
@@ -15,32 +16,6 @@ const getImageUrl = (url, fallback) => {
 };
 
 const DEFAULT_AVATAR = "https://randomuser.me/api/portraits/men/1.jpg";
-
-// ── Job card helpers — PlacementCell jaisa hi look yahan bhi ──
-function timeAgo(dateStr) {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const d = Math.floor(diff / 86400000);
-  if (d === 0) return "Today";
-  if (d === 1) return "Yesterday";
-  if (d < 30) return `${d} days ago`;
-  return new Date(dateStr).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
-}
-
-const TYPE_COLORS = {
-  "Full-time": "#4f46e5",
-  "Part-time": "#0891b2",
-  "Internship": "#059669",
-  "Freelance": "#d97706",
-  "Contract": "#dc2626",
-};
-
-function SocAvatar({ name = "", pic = "" }) {
-  if (pic) return <img src={pic} alt={name} className="pc-avatar" />;
-  const initials = name.split(" ").slice(0, 2).map(w => w[0]?.toUpperCase() || "").join("");
-  const colors = ["#4f46e5", "#0891b2", "#059669", "#d97706", "#7c3aed"];
-  const bg = colors[name.charCodeAt(0) % colors.length];
-  return <div className="pc-avatar pc-avatar-fallback" style={{ background: bg }}>{initials}</div>;
-}
 
 export default function PostNewsTab({
   activeTab,
@@ -60,6 +35,7 @@ export default function PostNewsTab({
   const user = JSON.parse(localStorage.getItem("user"));
   const [openJobMenuId, setOpenJobMenuId] = useState(null);
   const [editingJob, setEditingJob] = useState(null);
+  const [viewJob, setViewJob] = useState(null);
 
   return (
     <div className="pnt-card">
@@ -142,7 +118,7 @@ export default function PostNewsTab({
               myJobs.map((job) => {
                 const typeColor = TYPE_COLORS[job.jobType] || "#4f46e5";
                 return (
-                  <div className="pc-job-card" key={job._id} style={{ cursor: "default" }}>
+                  <div className="pc-job-card" key={job._id} onClick={() => setViewJob(job)}>
                     <div className="pc-job-card-header">
                       <SocAvatar name={job.societyName} pic={job.societyPic} />
                       <div className="pc-job-card-info">
@@ -155,19 +131,21 @@ export default function PostNewsTab({
                         <p className="pc-job-date">Posted on {timeAgo(job.createdAt)}</p>
                       </div>
                       {(onDeleteJob || onEditJob) && (
-                        <DotMenu
-                          show={openJobMenuId === job._id}
-                          setShow={(v) =>
-                            setOpenJobMenuId((prev) => {
-                              const next = typeof v === "function" ? v(prev === job._id) : v;
-                              return next ? job._id : null;
-                            })
-                          }
-                          editLabel="Edit Job"
-                          deleteLabel="Delete Job"
-                          onEdit={() => setEditingJob(job)}
-                          onDelete={() => onDeleteJob(job._id)}
-                        />
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <DotMenu
+                            show={openJobMenuId === job._id}
+                            setShow={(v) =>
+                              setOpenJobMenuId((prev) => {
+                                const next = typeof v === "function" ? v(prev === job._id) : v;
+                                return next ? job._id : null;
+                              })
+                            }
+                            editLabel="Edit Job"
+                            deleteLabel="Delete Job"
+                            onEdit={() => setEditingJob(job)}
+                            onDelete={() => onDeleteJob(job._id)}
+                          />
+                        </div>
                       )}
                     </div>
                   </div>
@@ -210,6 +188,14 @@ export default function PostNewsTab({
           </div>
         )}  */}
       </div>
+
+      {viewJob && (
+        <JobDetailModal
+          job={viewJob}
+          onClose={() => setViewJob(null)}
+          hideFooter
+        />
+      )}
 
       {editingJob && (
         <EditJobModal
