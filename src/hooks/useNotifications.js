@@ -15,7 +15,7 @@ export default function useNotifications() {
   const socket   = useSocket();
 
   const user   = JSON.parse(localStorage.getItem("user") || "null");
-  const userId = user?.societyId || user?.id || null;
+  const userId = user?.societyId || user?.userId || null;
 
   // ── Fetch ──────────────────────────────────────────────────────────────────
   const fetchNotifications = useCallback(async () => {
