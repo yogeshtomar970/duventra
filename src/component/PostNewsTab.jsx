@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import EventCard from "../component/EventCard";
 import NewsCardWithActions from "../component/NewsCardWithActions";
+import DotMenu from "./DotMenu";
+import EditJobModal from "./EditJobModal";
 import API_BASE_URL from "../config/api.js";
 import "../styles/PostNewsTab.css";
 
@@ -23,10 +25,13 @@ export default function PostNewsTab({
   onDeletePost,
   onEditJob,
   onDeleteJob,
+  onJobUpdated,
   onNewsUpdated,
   onNewsDeleted,
 }) {
   const user = JSON.parse(localStorage.getItem("user"));
+  const [openJobMenuId, setOpenJobMenuId] = useState(null);
+  const [editingJob, setEditingJob] = useState(null);
 
   return (
     <div className="pnt-card">
@@ -123,20 +128,21 @@ export default function PostNewsTab({
                         </span>
                       </div>
                     </div>
-                    {onDeleteJob && (
+                    {(onDeleteJob || onEditJob) && (
                       <div className="nc-header-right">
-                        <button
-                          onClick={() => onDeleteJob(job._id)}
-                          style={{
-                            background: "none",
-                            border: "none",
-                            color: "#f87171",
-                            cursor: "pointer",
-                            fontSize: 16,
-                          }}
-                        >
-                          🗑
-                        </button>
+                        <DotMenu
+                          show={openJobMenuId === job._id}
+                          setShow={(v) =>
+                            setOpenJobMenuId((prev) => {
+                              const next = typeof v === "function" ? v(prev === job._id) : v;
+                              return next ? job._id : null;
+                            })
+                          }
+                          editLabel="Edit Job"
+                          deleteLabel="Delete Job"
+                          onEdit={() => setEditingJob(job)}
+                          onDelete={() => onDeleteJob(job._id)}
+                        />
                       </div>
                     )}
                   </div>
@@ -188,6 +194,17 @@ export default function PostNewsTab({
           </div>
         )}  */}
       </div>
+
+      {editingJob && (
+        <EditJobModal
+          job={editingJob}
+          onClose={() => setEditingJob(null)}
+          onUpdated={(updatedJob) => {
+            onJobUpdated?.(updatedJob);
+            setEditingJob(null);
+          }}
+        />
+      )}
     </div>
   );
 }
