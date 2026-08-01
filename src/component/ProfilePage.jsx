@@ -460,11 +460,12 @@ export default function ProfilePage() {
           myNews={myNews}
           myJobs={myJobs}
           onDeleteJob={async (jobId) => {
-            const user = JSON.parse(localStorage.getItem("user"));
+            const token = localStorage.getItem("token");
             const res = await fetch(
-              `${API_BASE_URL}/api/placement/jobs/${jobId}/${user.societyId}`,
+              `${API_BASE_URL}/api/placement/jobs/${jobId}`,
               {
                 method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
               },
             );
             const data = await res.json();
@@ -472,6 +473,11 @@ export default function ProfilePage() {
               setMyJobs((prev) => prev.filter((j) => j._id !== jobId));
             else toast.error(data.message || "Delete failed");
           }}
+          onJobUpdated={(updatedJob) =>
+            setMyJobs((prev) =>
+              prev.map((j) => (j._id === updatedJob._id ? updatedJob : j)),
+            )
+          }
           society={society}
           onEditPost={handleEditPostOpen}
           onDeletePost={handleDeletePost}
