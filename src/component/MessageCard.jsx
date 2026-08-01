@@ -110,7 +110,7 @@ export default function MessageCard() {
           onConfirm={handleDeleteConversation}
         />
       )}
-      {!selectedChat && <BottomNav />}
+      <BottomNav />
     </div>
   );
 }
