@@ -22,7 +22,10 @@ export default function useNavbar() {
     if (!recipientId) return;
 
     const fetchCount = () => {
-      fetch(`${API_BASE_URL}/api/notification/unread/${recipientId}`)
+      const token = localStorage.getItem("token");
+      fetch(`${API_BASE_URL}/api/notification/unread/${recipientId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
         .then((r) => r.json())
         .then((d) => { if (d.success) setUnreadCount(d.count); })
         .catch(() => {});

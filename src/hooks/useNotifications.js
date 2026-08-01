@@ -22,7 +22,10 @@ export default function useNotifications() {
     if (!userId) { setLoading(false); return; }
     try {
       setLoading(true);
-      const res  = await fetch(`${BASE_URL}/api/notification/${userId}`);
+      const token = localStorage.getItem("token");
+      const res  = await fetch(`${BASE_URL}/api/notification/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (data.success && Array.isArray(data.notifications)) {
@@ -52,7 +55,11 @@ export default function useNotifications() {
   // ── Mark one read ──────────────────────────────────────────────────────────
   const markOneRead = async (id) => {
     try {
-      await fetch(`${BASE_URL}/api/notification/read/${id}`, { method: "PUT" });
+      const token = localStorage.getItem("token");
+      await fetch(`${BASE_URL}/api/notification/read/${id}`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setNotifications((prev) =>
         prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
       );
@@ -64,9 +71,13 @@ export default function useNotifications() {
   const markAllRead = async () => {
     if (!userId) return;
     try {
+      const token = localStorage.getItem("token");
       await fetch(`${BASE_URL}/api/notification/read-all`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ recipientId: userId }),
       });
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
@@ -99,9 +110,13 @@ export default function useNotifications() {
       if (selectedIds.size === 0) return;
       const ids = Array.from(selectedIds);
       try {
+        const token = localStorage.getItem("token");
         await fetch(`${BASE_URL}/api/notification/delete-selected`, {
           method: "DELETE",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
           body: JSON.stringify({ ids }),
         });
         setNotifications((prev) => prev.filter((n) => !selectedIds.has(n._id)));
@@ -117,9 +132,13 @@ export default function useNotifications() {
     const deleteAll = async () => {
       if (!userId) return;
       try {
+        const token = localStorage.getItem("token");
         await fetch(`${BASE_URL}/api/notification/delete-all`, {
           method: "DELETE",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
           body: JSON.stringify({ recipientId: userId }),
         });
         setNotifications([]);
