@@ -66,10 +66,14 @@ export default function CommitteeModal({ committee, onClose, onSocietyUpdate }) 
 
   const handleAddCommittee = async () => {
     const user = JSON.parse(localStorage.getItem("user"));
+    const token = localStorage.getItem("token");
     try {
       const res = await fetch(`${API_BASE_URL}/api/society/committee/${user.id}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ studentId: foundStudent._id, post: selectedPost }),
       });
       const data = await res.json();
@@ -77,17 +81,25 @@ export default function CommitteeModal({ committee, onClose, onSocietyUpdate }) 
         onSocietyUpdate(data.data);
         onClose();
         resetSearch();
+      } else {
+        toast.error(data.message || "Add member failed");
       }
-    } catch {}
+    } catch {
+      toast.error("Server error");
+    }
   };
 
   const handleRemove = async (studentId) => {
     if (!(await confirmToast("Do you want to remove this member from the committee?"))) return;
     const user = JSON.parse(localStorage.getItem("user"));
+    const token = localStorage.getItem("token");
     try {
       const res = await fetch(`${API_BASE_URL}/api/society/committee/${user.id}`, {
         method: "DELETE",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ studentId }),
       });
       const data = await res.json();
