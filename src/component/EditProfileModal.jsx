@@ -10,11 +10,15 @@ export default function EditProfileModal({ onClose, onSocietyUpdate, society }) 
   const handleSaveImage = async () => {
     if (!selectedImage) return toast.info("Select image first");
     const user = JSON.parse(localStorage.getItem("user"));
+    const token = localStorage.getItem("token");
     const formData = new FormData();
     formData.append("profilePic", selectedImage);
     try {
       const res = await fetch(`${API_BASE_URL}/api/society/update/${user.id}`, {
         method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`, // Content-Type mat likho — FormData khud set karta hai
+        },
         body: formData,
       });
       const data = await res.json();
@@ -28,10 +32,14 @@ export default function EditProfileModal({ onClose, onSocietyUpdate, society }) 
 
   const handleSaveBio = async () => {
     const user = JSON.parse(localStorage.getItem("user"));
+    const token = localStorage.getItem("token");
     try {
       const res = await fetch(`${API_BASE_URL}/api/society/update/${user.id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ bio }),
       });
       const data = await res.json();
