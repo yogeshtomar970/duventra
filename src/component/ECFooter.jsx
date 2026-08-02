@@ -12,6 +12,16 @@ import {
 } from "react-icons/fa";
 import "../styles/ECFooter.css";
 
+// Agar link me http:// ya https:// nahi hai to browser use current
+// domain ke relative path samajh leta hai — isliye yahan protocol
+// add kar dete hain taaki link hamesha alag tab me, apne domain pe open ho
+const getSafeExternalLink = (url) => {
+  if (!url) return "";
+  const trimmed = url.trim();
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+};
+
 export default function ECFooter({
   liked,
   likeCount,
@@ -75,7 +85,7 @@ export default function ECFooter({
         {formLink && (
           <a
             className="ec-action-btn"
-            href={formLink}
+            href={getSafeExternalLink(formLink)}
             target="_blank"
             rel="noopener noreferrer"
             title="Register / Form Link"
