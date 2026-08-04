@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { FaBriefcase, FaMapMarkerPin, FaClock, FaPlus, FaTrash, FaArrowLeft, FaXmark, FaEllipsisVertical } from "react-icons/fa6";
+import { FaBriefcase, FaMapMarkerPin, FaClock, FaPlus, FaTrash, FaArrowLeft, FaXmark, FaEllipsisVertical, FaMagnifyingGlass } from "react-icons/fa6";
 import { FaMapMarkerAlt, FaRegClock } from "react-icons/fa";
 import API_BASE_URL from "../config/api.js";
 import BottomNav from "../component/BottomNav";
@@ -347,6 +347,9 @@ export default function PlacementCell() {
   const [viewExternalJob, setViewExternalJob] = useState(null);
   const [externalError, setExternalError] = useState("");
 
+  // ✅ Search bar — title/company/society/location par match karta hai
+  const [searchQuery, setSearchQuery] = useState("");
+
   // Modals
   const [viewJob, setViewJob] = useState(null);
   const [applyJob, setApplyJob] = useState(null);
@@ -393,12 +396,12 @@ export default function PlacementCell() {
   // Filter badalte hi list top se dobara reveal ho (naya filter = nayi list)
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [filter]);
+  }, [filter, searchQuery]);
 
   // External type ya source badalte hi bhi reset karo
   useEffect(() => {
     setExternalVisibleCount(PAGE_SIZE);
-  }, [externalType, source]);
+  }, [externalType, source, searchQuery]);
 
   // Fetch external (JSearch) jobs — sirf tab "External" ke liye
   const fetchExternalJobs = async (type = externalType) => {
@@ -508,7 +511,28 @@ export default function PlacementCell() {
     setApplyLoading(false);
   };
 
-  const filtered = filter === "All" ? jobs : jobs.filter(j => j.jobType === filter);
+  const filtered = (filter === "All" ? jobs : jobs.filter(j => j.jobType === filter))
+    .filter(j => {
+      const q = searchQuery.trim().toLowerCase();
+      if (!q) return true;
+      return (
+        j.title?.toLowerCase().includes(q) ||
+        j.societyName?.toLowerCase().includes(q) ||
+        j.location?.toLowerCase().includes(q) ||
+        j.jobType?.toLowerCase().includes(q)
+      );
+    });
+
+  const filteredExternalJobs = externalJobs.filter(j => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return true;
+    return (
+      j.title?.toLowerCase().includes(q) ||
+      j.company?.toLowerCase().includes(q) ||
+      j.location?.toLowerCase().includes(q) ||
+      j.employmentType?.toLowerCase().includes(q)
+    );
+  });
 
   // ✅ Infinite scroll "load more" handlers — top-level par define kiye
   // hain (React hook rules ke hisaab se; conditionally JSX ke andar
@@ -518,8 +542,8 @@ export default function PlacementCell() {
   }, [filtered.length]);
 
   const loadMoreExternal = useCallback(() => {
-    setExternalVisibleCount(v => Math.min(v + PAGE_SIZE, externalJobs.length));
-  }, [externalJobs.length]);
+    setExternalVisibleCount(v => Math.min(v + PAGE_SIZE, filteredExternalJobs.length));
+  }, [filteredExternalJobs.length]);
 
   return (
     <>
@@ -536,6 +560,32 @@ export default function PlacementCell() {
 
         {/* College vs External */}
         <SourceTabs source={source} setSource={setSource} />
+
+        {/* Search bar — dono tabs (College/External) par kaam karta hai,
+            title / company / location / type se match karta hai */}
+        <div className="pc-search-bar">
+          <FaMagnifyingGlass className="pc-search-icon" />
+          <input
+            type="text"
+            className="pc-search-input"
+            placeholder={
+              source === "college"
+                ? "Search jobs by title, society, location..."
+                : "Search jobs by title, company, location..."
+            }
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <button
+              className="pc-search-clear"
+              onClick={() => setSearchQuery("")}
+              aria-label="Clear search"
+            >
+              <FaXmark />
+            </button>
+          )}
+        </div>
 
         {source === "college" ? (
           <>
@@ -562,7 +612,9 @@ export default function PlacementCell() {
               ) : filtered.length === 0 ? (
                 <div className="pc-state-center">
                   <FaBriefcase style={{ fontSize: 40, color: "#ccc" }} />
-                  <p style={{ color: "#888" }}>No jobs available right now</p>
+                  <p style={{ color: "#888" }}>
+                    {searchQuery ? `No jobs found for "${searchQuery}"` : "No jobs available right now"}
+                  </p>
                 </div>
               ) : (
                 <>
@@ -623,13 +675,18 @@ export default function PlacementCell() {
                     Retry
                   </button>
                 </div>
+              ) : filteredExternalJobs.length === 0 ? (
+                <div className="pc-state-center">
+                  <FaBriefcase style={{ fontSize: 40, color: "#ccc" }} />
+                  <p style={{ color: "#888" }}>No jobs found for "{searchQuery}"</p>
+                </div>
               ) : (
                 <>
-                  {externalJobs.slice(0, externalVisibleCount).map(job => (
+                  {filteredExternalJobs.slice(0, externalVisibleCount).map(job => (
                     <ExternalJobCard key={job.id} job={job} onView={setViewExternalJob} />
                   ))}
                   <InfiniteScrollSentinel
-                    hasMore={externalVisibleCount < externalJobs.length}
+                    hasMore={externalVisibleCount < filteredExternalJobs.length}
                     onVisible={loadMoreExternal}
                   />
                 </>
