@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { FaBriefcase, FaMapMarkerPin, FaClock, FaPlus, FaTrash, FaArrowLeft, FaXmark, FaEllipsisVertical } from "react-icons/fa6";
 import { FaMapMarkerAlt, FaRegClock } from "react-icons/fa";
 import API_BASE_URL from "../config/api.js";
@@ -21,6 +21,40 @@ const normalizeUrl = (url) => {
   if (/^https?:\/\//i.test(trimmed)) return trimmed;
   return `https://${trimmed}`;
 };
+
+// ─── Infinite Scroll Sentinel ───────────────────────────
+// Ye ek invisible div hai list ke bottom par — jaise hi ye viewport me
+// aata hai (user scroll karte karte neeche pahunchta hai), onVisible()
+// call hoti hai jo aur items reveal karta hai. Real API call nahi,
+// sirf already-fetched data me se aur items dikhata hai (client-side
+// pagination) — taaki page load par ek saath sab render na ho.
+function InfiniteScrollSentinel({ onVisible, hasMore }) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!hasMore) return;
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) onVisible();
+      },
+      { rootMargin: "300px" } // thoda pehle hi trigger ho jaaye, taaki scroll smooth lage
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [onVisible, hasMore]);
+
+  if (!hasMore) return null;
+  return (
+    <div ref={ref} className="pc-scroll-sentinel">
+      <div className="pc-loader pc-loader-sm">
+        <div /><div /><div />
+      </div>
+    </div>
+  );
+}
 
 // ─── Job Card ──────────────────────────────────────────
 function JobCard({ job, isAdmin, onView, onDelete }) {
@@ -299,6 +333,12 @@ export default function PlacementCell() {
   const [filter, setFilter] = useState("All");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // ✅ Infinite scroll — kitni jobs abhi tak render karni hain (baaki
+  // scroll karne par reveal hoti hain, batches me)
+  const PAGE_SIZE = 6;
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [externalVisibleCount, setExternalVisibleCount] = useState(PAGE_SIZE);
+
   // College vs External toggle
   const [source, setSource] = useState("college"); // "college" | "external"
   const [externalJobs, setExternalJobs] = useState([]);
@@ -349,6 +389,16 @@ export default function PlacementCell() {
     fetchJobs();
     fetchApplied();
   }, []);
+
+  // Filter badalte hi list top se dobara reveal ho (naya filter = nayi list)
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [filter]);
+
+  // External type ya source badalte hi bhi reset karo
+  useEffect(() => {
+    setExternalVisibleCount(PAGE_SIZE);
+  }, [externalType, source]);
 
   // Fetch external (JSearch) jobs — sirf tab "External" ke liye
   const fetchExternalJobs = async (type = externalType) => {
@@ -460,6 +510,17 @@ export default function PlacementCell() {
 
   const filtered = filter === "All" ? jobs : jobs.filter(j => j.jobType === filter);
 
+  // ✅ Infinite scroll "load more" handlers — top-level par define kiye
+  // hain (React hook rules ke hisaab se; conditionally JSX ke andar
+  // useCallback call nahi kar sakte)
+  const loadMoreCollege = useCallback(() => {
+    setVisibleCount(v => Math.min(v + PAGE_SIZE, filtered.length));
+  }, [filtered.length]);
+
+  const loadMoreExternal = useCallback(() => {
+    setExternalVisibleCount(v => Math.min(v + PAGE_SIZE, externalJobs.length));
+  }, [externalJobs.length]);
+
   return (
     <>
       {/* <Navbar toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
@@ -504,15 +565,21 @@ export default function PlacementCell() {
                   <p style={{ color: "#888" }}>No jobs available right now</p>
                 </div>
               ) : (
-                filtered.map(job => (
-                  <JobCard
-                    key={job._id}
-                    job={job}
-                    isAdmin={isAdmin}
-                    onView={setViewJob}
-                    onDelete={handleDelete}
+                <>
+                  {filtered.slice(0, visibleCount).map(job => (
+                    <JobCard
+                      key={job._id}
+                      job={job}
+                      isAdmin={isAdmin}
+                      onView={setViewJob}
+                      onDelete={handleDelete}
+                    />
+                  ))}
+                  <InfiniteScrollSentinel
+                    hasMore={visibleCount < filtered.length}
+                    onVisible={loadMoreCollege}
                   />
-                ))
+                </>
               )}
             </div>
           </>
@@ -557,9 +624,15 @@ export default function PlacementCell() {
                   </button>
                 </div>
               ) : (
-                externalJobs.map(job => (
-                  <ExternalJobCard key={job.id} job={job} onView={setViewExternalJob} />
-                ))
+                <>
+                  {externalJobs.slice(0, externalVisibleCount).map(job => (
+                    <ExternalJobCard key={job.id} job={job} onView={setViewExternalJob} />
+                  ))}
+                  <InfiniteScrollSentinel
+                    hasMore={externalVisibleCount < externalJobs.length}
+                    onVisible={loadMoreExternal}
+                  />
+                </>
               )}
             </div>
           </>

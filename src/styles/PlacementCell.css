@@ -200,6 +200,17 @@
   40% { transform: scale(1); opacity: 1; }
 }
 
+/* ── Infinite scroll sentinel (bottom-of-list loader) ── */
+.pc-scroll-sentinel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0;
+}
+.pc-loader-sm div {
+  width: 7px; height: 7px;
+}
+
 /* ── Overlay ── */
 .pc-overlay {
   position: fixed;
