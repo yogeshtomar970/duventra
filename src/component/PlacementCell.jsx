@@ -305,6 +305,7 @@ export default function PlacementCell() {
   const [externalLoading, setExternalLoading] = useState(false);
   const [externalType, setExternalType] = useState("fresher"); // fresher | graduate | internship
   const [viewExternalJob, setViewExternalJob] = useState(null);
+  const [externalError, setExternalError] = useState("");
 
   // Modals
   const [viewJob, setViewJob] = useState(null);
@@ -352,16 +353,29 @@ export default function PlacementCell() {
   // Fetch external (JSearch) jobs — sirf tab "External" ke liye
   const fetchExternalJobs = async (type = externalType) => {
     setExternalLoading(true);
+    setExternalError("");
     try {
       const res = await fetch(
         `${API_BASE_URL}/api/placement/external-jobs?type=${type}&location=India`
       );
       const data = await res.json();
-      if (data.success) setExternalJobs(data.data);
-      else setExternalJobs([]);
+      if (data.success) {
+        setExternalJobs(data.data);
+        if (!data.data || data.data.length === 0) {
+          setExternalError("No external jobs found right now for this category.");
+        }
+      } else {
+        setExternalJobs([]);
+        // ✅ FIX: ab backend ka asal error message UI par dikhta hai
+        // (e.g. missing RAPIDAPI_KEY, JSearch down, etc.) — pehle ye
+        // silently generic "load nahi ho payi" state me chhup jaata tha
+        setExternalError(data.message || "Something went wrong fetching external jobs.");
+        console.error("External jobs fetch failed:", data.message);
+      }
     } catch (e) {
-      console.error(e);
+      console.error("External jobs fetch error:", e);
       setExternalJobs([]);
+      setExternalError("Could not reach the server. Check your connection or try again.");
     } finally {
       setExternalLoading(false);
     }
@@ -531,7 +545,16 @@ export default function PlacementCell() {
               ) : externalJobs.length === 0 ? (
                 <div className="pc-state-center">
                   <FaBriefcase style={{ fontSize: 40, color: "#ccc" }} />
-                  <p style={{ color: "#888" }}>Abhi external jobs load nahi ho payi</p>
+                  <p style={{ color: "#888" }}>
+                    {externalError || "Abhi external jobs load nahi ho payi"}
+                  </p>
+                  <button
+                    className="pc-apply-btn"
+                    style={{ marginTop: 12 }}
+                    onClick={() => fetchExternalJobs(externalType)}
+                  >
+                    Retry
+                  </button>
                 </div>
               ) : (
                 externalJobs.map(job => (
