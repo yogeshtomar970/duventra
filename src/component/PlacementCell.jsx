@@ -6,6 +6,7 @@ import BottomNav from "../component/BottomNav";
 import Navbar from "../component/Navbar";
 import Sidebar from "../component/sidebar";
 import JobDetailModal, { SocAvatar, timeAgo, TYPE_COLORS } from "./JobDetailModal";
+import ExternalJobDetailModal from "./ExternalJobDetailModal";
 import "../styles/PlacementCell.css";
 
 // ─── Helpers ───────────────────────────────────────────
@@ -43,6 +44,42 @@ function JobCard({ job, isAdmin, onView, onDelete }) {
           </button>
         )}
       </div>
+    </div>
+  );
+}
+
+// ─── External Job Card (JSearch data) ───────────────────
+function ExternalJobCard({ job, onView }) {
+  return (
+    <div className="pc-job-card" onClick={() => onView(job)}>
+      <div className="pc-job-card-header">
+        {job.companyLogo ? (
+          <img src={job.companyLogo} alt={job.company} className="pc-avatar" />
+        ) : (
+          <SocAvatar name={job.company || "Company"} />
+        )}
+        <div className="pc-job-card-info">
+          <h3 className="pc-job-title">{job.title}</h3>
+          <span className="pc-job-society" style={{ color: "#4f46e5" }}>{job.company}</span>
+          <div className="pc-job-meta">
+            <span><FaMapMarkerAlt /> {job.isRemote ? "Remote" : job.location}</span>
+            <span><FaRegClock /> {job.employmentType}</span>
+          </div>
+          {job.postedAt && <p className="pc-job-date">Posted on {timeAgo(job.postedAt)}</p>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Source Tabs (College vs External) ──────────────────
+function SourceTabs({ source, setSource }) {
+  return (
+    <div className="pc-filter-bar">
+      <button className={`pc-filter-btn ${source === "college" ? "active" : ""}`}
+        onClick={() => setSource("college")}>College</button>
+      <button className={`pc-filter-btn ${source === "external" ? "active" : ""}`}
+        onClick={() => setSource("external")}>External</button>
     </div>
   );
 }
@@ -262,6 +299,13 @@ export default function PlacementCell() {
   const [filter, setFilter] = useState("All");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // College vs External toggle
+  const [source, setSource] = useState("college"); // "college" | "external"
+  const [externalJobs, setExternalJobs] = useState([]);
+  const [externalLoading, setExternalLoading] = useState(false);
+  const [externalType, setExternalType] = useState("fresher"); // fresher | graduate | internship
+  const [viewExternalJob, setViewExternalJob] = useState(null);
+
   // Modals
   const [viewJob, setViewJob] = useState(null);
   const [applyJob, setApplyJob] = useState(null);
@@ -304,6 +348,30 @@ export default function PlacementCell() {
     fetchJobs();
     fetchApplied();
   }, []);
+
+  // Fetch external (JSearch) jobs — sirf tab "External" ke liye
+  const fetchExternalJobs = async (type = externalType) => {
+    setExternalLoading(true);
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/api/placement/external-jobs?type=${type}&location=India`
+      );
+      const data = await res.json();
+      if (data.success) setExternalJobs(data.data);
+      else setExternalJobs([]);
+    } catch (e) {
+      console.error(e);
+      setExternalJobs([]);
+    } finally {
+      setExternalLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (source === "external" && externalJobs.length === 0 && !externalLoading) {
+      fetchExternalJobs();
+    }
+  }, [source]);
 
   // Create job
   const handleCreateJob = async (jobData) => {
@@ -391,43 +459,88 @@ export default function PlacementCell() {
           <span className="pc-top-title">Placement Cell</span>
         </div>
 
-        {/* Filter */}
-        <FilterBar filter={filter} setFilter={setFilter} />
+        {/* College vs External */}
+        <SourceTabs source={source} setSource={setSource} />
 
-        {/* New Job button — only admin */}
-        {isAdmin && (
-          <div className="pc-new-job-wrap">
-            <button className="pc-new-job-btn" onClick={() => setShowCreate(true)}>
-              <FaPlus /> New Job
-            </button>
-          </div>
-        )}
+        {source === "college" ? (
+          <>
+            {/* Filter */}
+            <FilterBar filter={filter} setFilter={setFilter} />
 
-        {/* Job list */}
-        <div className="pc-job-list">
-          {loading ? (
-            <div className="pc-state-center">
-              <div className="pc-loader">
-                <div /><div /><div />
+            {/* New Job button — only admin */}
+            {isAdmin && (
+              <div className="pc-new-job-wrap">
+                <button className="pc-new-job-btn" onClick={() => setShowCreate(true)}>
+                  <FaPlus /> New Job
+                </button>
               </div>
+            )}
+
+            {/* College job list */}
+            <div className="pc-job-list">
+              {loading ? (
+                <div className="pc-state-center">
+                  <div className="pc-loader">
+                    <div /><div /><div />
+                  </div>
+                </div>
+              ) : filtered.length === 0 ? (
+                <div className="pc-state-center">
+                  <FaBriefcase style={{ fontSize: 40, color: "#ccc" }} />
+                  <p style={{ color: "#888" }}>No jobs available right now</p>
+                </div>
+              ) : (
+                filtered.map(job => (
+                  <JobCard
+                    key={job._id}
+                    job={job}
+                    isAdmin={isAdmin}
+                    onView={setViewJob}
+                    onDelete={handleDelete}
+                  />
+                ))
+              )}
             </div>
-          ) : filtered.length === 0 ? (
-            <div className="pc-state-center">
-              <FaBriefcase style={{ fontSize: 40, color: "#ccc" }} />
-              <p style={{ color: "#888" }}>No jobs available right now</p>
+          </>
+        ) : (
+          <>
+            {/* External type filter — fresher / graduate / internship */}
+            <div className="pc-filter-bar">
+              {["fresher", "graduate", "internship"].map(t => (
+                <button
+                  key={t}
+                  className={`pc-filter-btn ${externalType === t ? "active" : ""}`}
+                  onClick={() => {
+                    setExternalType(t);
+                    fetchExternalJobs(t);
+                  }}
+                >
+                  {t[0].toUpperCase() + t.slice(1)}
+                </button>
+              ))}
             </div>
-          ) : (
-            filtered.map(job => (
-              <JobCard
-                key={job._id}
-                job={job}
-                isAdmin={isAdmin}
-                onView={setViewJob}
-                onDelete={handleDelete}
-              />
-            ))
-          )}
-        </div>
+
+            {/* External job list */}
+            <div className="pc-job-list">
+              {externalLoading ? (
+                <div className="pc-state-center">
+                  <div className="pc-loader">
+                    <div /><div /><div />
+                  </div>
+                </div>
+              ) : externalJobs.length === 0 ? (
+                <div className="pc-state-center">
+                  <FaBriefcase style={{ fontSize: 40, color: "#ccc" }} />
+                  <p style={{ color: "#888" }}>Abhi external jobs load nahi ho payi</p>
+                </div>
+              ) : (
+                externalJobs.map(job => (
+                  <ExternalJobCard key={job.id} job={job} onView={setViewExternalJob} />
+                ))
+              )}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Job Detail Modal */}
@@ -450,6 +563,14 @@ export default function PlacementCell() {
             // User ne form fill/submit karke khud confirm kiya — ab record karo
             recordApplication(viewJob, {});
           }}
+        />
+      )}
+
+      {/* External Job Detail Modal — poora JSearch data card click par yahan dikhta hai */}
+      {viewExternalJob && (
+        <ExternalJobDetailModal
+          job={viewExternalJob}
+          onClose={() => setViewExternalJob(null)}
         />
       )}
 
