@@ -625,7 +625,7 @@ export default function PlacementCell() {
     setVisibleCount(v => Math.min(v + PAGE_SIZE, filtered.length));
   }, [filtered.length]);
 
-  return (
+  return ( 
     <>
       {/* <Navbar toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} /> */}
