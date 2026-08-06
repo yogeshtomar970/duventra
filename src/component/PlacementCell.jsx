@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { FaBriefcase, FaMapMarkerPin, FaClock, FaPlus, FaTrash, FaArrowLeft, FaXmark, FaEllipsisVertical, FaMagnifyingGlass } from "react-icons/fa6";
 import { FaMapMarkerAlt, FaRegClock } from "react-icons/fa";
 import API_BASE_URL from "../config/api.js";
@@ -7,7 +7,39 @@ import Navbar from "../component/Navbar";
 import Sidebar from "../component/sidebar";
 import JobDetailModal, { SocAvatar, timeAgo, TYPE_COLORS } from "./JobDetailModal";
 import ExternalJobDetailModal from "./ExternalJobDetailModal";
+import useDebounce from "../hooks/useDebounce";
 import "../styles/PlacementCell.css";
+
+// Ek hi type ke liye backend par kitne jobs ek call me maangne hain —
+// pehla load jaldi aaye isliye chhota rakha hai, "Load More" isi size
+// ke agle pages fetch karta rehta hai.
+const EXTERNAL_PAGE_LIMIT = 15;
+
+// ─── Skeleton / shimmer card (initial load ke liye) ─────
+function SkeletonCard() {
+  return (
+    <div className="pc-job-card pc-skeleton-card">
+      <div className="pc-job-card-header">
+        <div className="pc-skeleton pc-skeleton-avatar" />
+        <div className="pc-job-card-info" style={{ width: "100%" }}>
+          <div className="pc-skeleton pc-skeleton-line" style={{ width: "60%" }} />
+          <div className="pc-skeleton pc-skeleton-line" style={{ width: "40%" }} />
+          <div className="pc-skeleton pc-skeleton-line" style={{ width: "80%" }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SkeletonList({ count = 6 }) {
+  return (
+    <>
+      {Array.from({ length: count }).map((_, i) => (
+        <SkeletonCard key={i} />
+      ))}
+    </>
+  );
+}
 
 // ─── Helpers ───────────────────────────────────────────
 const JOB_TYPES = ["Full-time", "Part-time", "Internship", "Freelance", "Contract"];
@@ -57,7 +89,10 @@ function InfiniteScrollSentinel({ onVisible, hasMore }) {
 }
 
 // ─── Job Card ──────────────────────────────────────────
-function JobCard({ job, isAdmin, onView, onDelete }) {
+// React.memo — parent re-render hone par bhi ye card sirf tab dobara
+// render hota hai jab iske apne props (job/isAdmin/onView/onDelete)
+// badalte hain. Job list bade hone par ye kaafi re-renders bacha leta hai.
+const JobCard = React.memo(function JobCard({ job, isAdmin, onView, onDelete }) {
   const typeColor = TYPE_COLORS[job.jobType] || "#4f46e5";
   return (
     <div className="pc-job-card" onClick={() => onView(job)}>
@@ -80,10 +115,10 @@ function JobCard({ job, isAdmin, onView, onDelete }) {
       </div>
     </div>
   );
-}
+});
 
 // ─── External Job Card (JSearch data) ───────────────────
-function ExternalJobCard({ job, onView }) {
+const ExternalJobCard = React.memo(function ExternalJobCard({ job, onView }) {
   return (
     <div className="pc-job-card" onClick={() => onView(job)}>
       <div className="pc-job-card-header">
@@ -104,10 +139,10 @@ function ExternalJobCard({ job, onView }) {
       </div>
     </div>
   );
-}
+});
 
 // ─── Source Tabs (College vs External) ──────────────────
-function SourceTabs({ source, setSource }) {
+const SourceTabs = React.memo(function SourceTabs({ source, setSource }) {
   return (
     <div className="pc-filter-bar">
       <button className={`pc-filter-btn ${source === "college" ? "active" : ""}`}
@@ -116,7 +151,7 @@ function SourceTabs({ source, setSource }) {
         onClick={() => setSource("external")}>External</button>
     </div>
   );
-}
+});
 
 // ─── Apply Modal ────────────────────────────────────────
 function ApplyModal({ job, onClose, onSubmit, loading }) {
@@ -314,7 +349,7 @@ function CreateJobModal({ onClose, onSave, societyName, societyPic, societyId })
 }
 
 // ─── Filter Bar ─────────────────────────────────────────
-function FilterBar({ filter, setFilter }) {
+const FilterBar = React.memo(function FilterBar({ filter, setFilter }) {
   const filters = ["All", ...JOB_TYPES];
   return (
     <div className="pc-filter-bar">
@@ -324,7 +359,7 @@ function FilterBar({ filter, setFilter }) {
       ))}
     </div>
   );
-}
+});
 
 // ─── Main PlacementCell Page ────────────────────────────
 export default function PlacementCell() {
@@ -333,22 +368,38 @@ export default function PlacementCell() {
   const [filter, setFilter] = useState("All");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // ✅ Infinite scroll — kitni jobs abhi tak render karni hain (baaki
-  // scroll karne par reveal hoti hain, batches me)
+  // ✅ Infinite scroll (College tab) — college jobs ek hi chhote call se
+  // aa jaate hain, isliye unke liye client-side reveal kaafi hai
   const PAGE_SIZE = 6;
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-  const [externalVisibleCount, setExternalVisibleCount] = useState(PAGE_SIZE);
+
+  // ✅ External (JSearch) tab — TRUE server-side pagination. Har "page"
+  // backend se alag call se aata hai (EXTERNAL_PAGE_LIMIT jobs/page),
+  // isliye pehla paint bahut jaldi hota hai aur poora dataset kabhi
+  // ek saath download nahi hota.
+  const [externalPage, setExternalPage] = useState(1);
+  const [externalHasMore, setExternalHasMore] = useState(true);
 
   // College vs External toggle
   const [source, setSource] = useState("college"); // "college" | "external"
   const [externalJobs, setExternalJobs] = useState([]);
-  const [externalLoading, setExternalLoading] = useState(false);
+  const [externalLoading, setExternalLoading] = useState(false); // pehla load (skeleton)
+  const [externalLoadingMore, setExternalLoadingMore] = useState(false); // "load more" spinner
   const [externalType, setExternalType] = useState("fresher"); // fresher | graduate | internship
   const [viewExternalJob, setViewExternalJob] = useState(null);
   const [externalError, setExternalError] = useState("");
 
-  // ✅ Search bar — title/company/society/location par match karta hai
+  // In-flight external request ko track karta hai taaki fast tab-switch /
+  // filter-change par purani request ka result naye state ko overwrite na
+  // kar de, aur duplicate parallel calls bhi na jaayein.
+  const externalRequestId = useRef(0);
+
+  // ✅ Search bar — title/company/society/location par match karta hai.
+  // `searchQuery` turant input value hai (UI me instantly dikhta hai),
+  // `debouncedSearchQuery` 400ms ke baad update hoti hai — isi se
+  // filtering hoti hai, taaki har keystroke par poori list re-filter na ho.
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearchQuery = useDebounce(searchQuery, 400);
 
   // Modals
   const [viewJob, setViewJob] = useState(null);
@@ -398,27 +449,40 @@ export default function PlacementCell() {
     setVisibleCount(PAGE_SIZE);
   }, [filter, searchQuery]);
 
-  // External type ya source badalte hi bhi reset karo
-  useEffect(() => {
-    setExternalVisibleCount(PAGE_SIZE);
-  }, [externalType, source, searchQuery]);
+  // Fetch external (JSearch) jobs — sirf tab "External" ke liye.
+  // `mode: "replace"` → naya type/tab select hua, page 1 se shuru karo.
+  // `mode: "append"`  → "Load More" — agla page fetch karke list me jodo.
+  const fetchExternalJobs = useCallback(async (type, page, mode) => {
+    // Har call ko ek id do — agar iske aane se pehle koi naya request
+    // (tab switch, type change) shuru ho gaya, to is purani response ko
+    // ignore kar do. Isse race condition / stale data ka bug nahi aata
+    // aur redundant re-renders bhi bachte hain.
+    const requestId = ++externalRequestId.current;
 
-  // Fetch external (JSearch) jobs — sirf tab "External" ke liye
-  const fetchExternalJobs = async (type = externalType) => {
-    setExternalLoading(true);
-    setExternalError("");
+    if (mode === "replace") {
+      setExternalLoading(true);
+      setExternalError("");
+    } else {
+      setExternalLoadingMore(true);
+    }
+
     try {
       const res = await fetch(
-        `${API_BASE_URL}/api/placement/external-jobs?type=${type}&location=India`
+        `${API_BASE_URL}/api/placement/external-jobs?type=${type}&location=India&page=${page}&limit=${EXTERNAL_PAGE_LIMIT}`
       );
       const data = await res.json();
+
+      if (requestId !== externalRequestId.current) return; // stale response, drop it
+
       if (data.success) {
-        setExternalJobs(data.data);
-        if (!data.data || data.data.length === 0) {
+        setExternalJobs(prev => (mode === "append" ? [...prev, ...data.data] : data.data));
+        setExternalPage(page);
+        setExternalHasMore(!!data.hasMore);
+        if (mode === "replace" && (!data.data || data.data.length === 0)) {
           setExternalError("No external jobs found right now for this category.");
         }
       } else {
-        setExternalJobs([]);
+        if (mode === "replace") setExternalJobs([]);
         // ✅ FIX: ab backend ka asal error message UI par dikhta hai
         // (e.g. missing RAPIDAPI_KEY, JSearch down, etc.) — pehle ye
         // silently generic "load nahi ho payi" state me chhup jaata tha
@@ -426,19 +490,30 @@ export default function PlacementCell() {
         console.error("External jobs fetch failed:", data.message);
       }
     } catch (e) {
+      if (requestId !== externalRequestId.current) return;
       console.error("External jobs fetch error:", e);
-      setExternalJobs([]);
+      if (mode === "replace") setExternalJobs([]);
       setExternalError("Could not reach the server. Check your connection or try again.");
     } finally {
-      setExternalLoading(false);
+      if (requestId === externalRequestId.current) {
+        setExternalLoading(false);
+        setExternalLoadingMore(false);
+      }
     }
-  };
+  }, []);
 
+  // Source tab "External" khulte hi, ya category (fresher/graduate/
+  // internship) badalte hi — pehla page fresh fetch karo
   useEffect(() => {
-    if (source === "external" && externalJobs.length === 0 && !externalLoading) {
-      fetchExternalJobs();
+    if (source === "external") {
+      fetchExternalJobs(externalType, 1, "replace");
     }
-  }, [source]);
+  }, [source, externalType, fetchExternalJobs]);
+
+  const loadMoreExternal = useCallback(() => {
+    if (externalLoadingMore || !externalHasMore) return;
+    fetchExternalJobs(externalType, externalPage + 1, "append");
+  }, [externalLoadingMore, externalHasMore, externalType, externalPage, fetchExternalJobs]);
 
   // Create job
   const handleCreateJob = async (jobData) => {
@@ -461,8 +536,9 @@ export default function PlacementCell() {
     } catch (e) { alert("Error creating job"); }
   };
 
-  // Delete job
-  const handleDelete = async (jobId) => {
+  // Delete job — useCallback taaki JobCard (React.memo) ko stable prop mile
+  // aur delete button add hone se poori list re-render na ho
+  const handleDelete = useCallback(async (jobId) => {
   if (!window.confirm("Want to Delete this job?")) return;
   try {
     const res = await fetch(`${API_BASE_URL}/api/placement/jobs/${jobId}`, {
@@ -473,7 +549,7 @@ export default function PlacementCell() {
     if (data.success) setJobs(prev => prev.filter(j => j._id !== jobId));
     else alert(data.message);
   } catch (e) { alert("Error deleting job"); }
-};
+  }, [token]);
 
   // Record an application in the backend (used by both the form-link flow and the custom-fields modal flow)
   const recordApplication = async (job, formData = {}) => {
@@ -511,39 +587,43 @@ export default function PlacementCell() {
     setApplyLoading(false);
   };
 
-  const filtered = (filter === "All" ? jobs : jobs.filter(j => j.jobType === filter))
-    .filter(j => {
-      const q = searchQuery.trim().toLowerCase();
-      if (!q) return true;
-      return (
-        j.title?.toLowerCase().includes(q) ||
-        j.societyName?.toLowerCase().includes(q) ||
-        j.location?.toLowerCase().includes(q) ||
-        j.jobType?.toLowerCase().includes(q)
-      );
-    });
+  // ✅ useMemo — ye filtering sirf tab dobara chalti hai jab jobs/filter/
+  // debouncedSearchQuery me se koi badle, har render par nahi (aur
+  // debounce ki wajah se har keystroke par bhi nahi chalti).
+  const filtered = useMemo(() => {
+    const q = debouncedSearchQuery.trim().toLowerCase();
+    return (filter === "All" ? jobs : jobs.filter(j => j.jobType === filter))
+      .filter(j => {
+        if (!q) return true;
+        return (
+          j.title?.toLowerCase().includes(q) ||
+          j.societyName?.toLowerCase().includes(q) ||
+          j.location?.toLowerCase().includes(q) ||
+          j.jobType?.toLowerCase().includes(q)
+        );
+      });
+  }, [jobs, filter, debouncedSearchQuery]);
 
-  const filteredExternalJobs = externalJobs.filter(j => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return true;
-    return (
+  // External tab search: sirf ab tak fetched/loaded jobs par filter hota
+  // hai (backend-side search abhi implement nahi hai) — is se pagination
+  // ke saath koi conflict nahi hota.
+  const filteredExternalJobs = useMemo(() => {
+    const q = debouncedSearchQuery.trim().toLowerCase();
+    if (!q) return externalJobs;
+    return externalJobs.filter(j => (
       j.title?.toLowerCase().includes(q) ||
       j.company?.toLowerCase().includes(q) ||
       j.location?.toLowerCase().includes(q) ||
       j.employmentType?.toLowerCase().includes(q)
-    );
-  });
+    ));
+  }, [externalJobs, debouncedSearchQuery]);
 
-  // ✅ Infinite scroll "load more" handlers — top-level par define kiye
-  // hain (React hook rules ke hisaab se; conditionally JSX ke andar
-  // useCallback call nahi kar sakte)
+  // ✅ Infinite scroll "load more" handler (College tab) — top-level par
+  // define kiya hai (React hook rules ke hisaab se; conditionally JSX ke
+  // andar useCallback call nahi kar sakte)
   const loadMoreCollege = useCallback(() => {
     setVisibleCount(v => Math.min(v + PAGE_SIZE, filtered.length));
   }, [filtered.length]);
-
-  const loadMoreExternal = useCallback(() => {
-    setExternalVisibleCount(v => Math.min(v + PAGE_SIZE, filteredExternalJobs.length));
-  }, [filteredExternalJobs.length]);
 
   return (
     <>
@@ -604,11 +684,7 @@ export default function PlacementCell() {
             {/* College job list */}
             <div className="pc-job-list">
               {loading ? (
-                <div className="pc-state-center">
-                  <div className="pc-loader">
-                    <div /><div /><div />
-                  </div>
-                </div>
+                <SkeletonList count={6} />
               ) : filtered.length === 0 ? (
                 <div className="pc-state-center">
                   <FaBriefcase style={{ fontSize: 40, color: "#ccc" }} />
@@ -637,16 +713,17 @@ export default function PlacementCell() {
           </>
         ) : (
           <>
-            {/* External type filter — fresher / graduate / internship */}
+            {/* External type filter — fresher / graduate / internship.
+                Sirf setExternalType() call karte hain; fetch khud useEffect
+                se trigger hota hai (single source of truth) — isse click
+                + effect dono se duplicate calls jaane ka risk nahi rehta. */}
             <div className="pc-filter-bar">
               {["fresher", "graduate", "internship"].map(t => (
                 <button
                   key={t}
                   className={`pc-filter-btn ${externalType === t ? "active" : ""}`}
-                  onClick={() => {
-                    setExternalType(t);
-                    fetchExternalJobs(t);
-                  }}
+                  disabled={externalLoading && externalType === t}
+                  onClick={() => setExternalType(t)}
                 >
                   {t[0].toUpperCase() + t.slice(1)}
                 </button>
@@ -656,11 +733,10 @@ export default function PlacementCell() {
             {/* External job list */}
             <div className="pc-job-list">
               {externalLoading ? (
-                <div className="pc-state-center">
-                  <div className="pc-loader">
-                    <div /><div /><div />
-                  </div>
-                </div>
+                // ✅ Shimmer skeleton — sirf pehla load ke liye. Data ka
+                // "shape" pehle hi dikhta hai jabki JSearch call background
+                // me chal rahi hoti hai, isse page "slow" nahi lagta.
+                <SkeletonList count={6} />
               ) : externalJobs.length === 0 ? (
                 <div className="pc-state-center">
                   <FaBriefcase style={{ fontSize: 40, color: "#ccc" }} />
@@ -670,7 +746,7 @@ export default function PlacementCell() {
                   <button
                     className="pc-apply-btn"
                     style={{ marginTop: 12 }}
-                    onClick={() => fetchExternalJobs(externalType)}
+                    onClick={() => fetchExternalJobs(externalType, 1, "replace")}
                   >
                     Retry
                   </button>
@@ -682,13 +758,24 @@ export default function PlacementCell() {
                 </div>
               ) : (
                 <>
-                  {filteredExternalJobs.slice(0, externalVisibleCount).map(job => (
+                  {filteredExternalJobs.map(job => (
                     <ExternalJobCard key={job.id} job={job} onView={setViewExternalJob} />
                   ))}
-                  <InfiniteScrollSentinel
-                    hasMore={externalVisibleCount < filteredExternalJobs.length}
-                    onVisible={loadMoreExternal}
-                  />
+                  {/* Search active hone par backend pagination se aage
+                      badhna bhramit karega (search sirf loaded jobs par
+                      hai), isliye tabhi "load more" dikhao jab search khaali ho */}
+                  {!debouncedSearchQuery && (
+                    externalLoadingMore ? (
+                      <div className="pc-loader pc-loader-sm" style={{ margin: "16px auto" }}>
+                        <div /><div /><div />
+                      </div>
+                    ) : (
+                      <InfiniteScrollSentinel
+                        hasMore={externalHasMore}
+                        onVisible={loadMoreExternal}
+                      />
+                    )
+                  )}
                 </>
               )}
             </div>
