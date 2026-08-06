@@ -274,6 +274,115 @@
   color: #4f46e5;
 }
 
+/* ── Filter toggle button (inside search bar) ── */
+.pc-filter-toggle-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(0,0,0,0.10);
+  background: #fff;
+  color: #666;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+.pc-filter-toggle-btn:hover { border-color: #4f46e5; color: #4f46e5; }
+.pc-filter-toggle-btn.open {
+  background: rgb(181, 101, 29);
+  border-color: rgb(181, 101, 29);
+  color: white;
+}
+.pc-filter-toggle-btn.has-active:not(.open) {
+  border-color: rgb(181, 101, 29);
+  color: rgb(181, 101, 29);
+}
+.pc-filter-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #e11d48;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  line-height: 1;
+}
+
+/* ── Date / Sort / Remote filter panel ── */
+.pc-filter-panel {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  margin: -4px 16px 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: pcFadeIn 0.15s ease;
+}
+.pc-filter-panel-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pc-filter-panel-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin: 0;
+}
+.pc-filter-panel-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pc-filter-panel-pills .pc-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.pc-filter-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+}
+.pc-filter-checkbox input {
+  width: 16px;
+  height: 16px;
+  accent-color: rgb(181, 101, 29);
+  cursor: pointer;
+}
+.pc-filter-panel-clear {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: #e11d48;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+}
+.pc-filter-panel-clear:hover { text-decoration: underline; }
+
 /* ── Overlay ── */
 .pc-overlay {
   position: fixed;
