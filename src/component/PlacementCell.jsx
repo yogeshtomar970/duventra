@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
-import { FaBriefcase, FaMapMarkerPin, FaClock, FaPlus, FaTrash, FaArrowLeft, FaXmark, FaEllipsisVertical, FaMagnifyingGlass } from "react-icons/fa6";
+import { FaBriefcase, FaMapMarkerPin, FaClock, FaPlus, FaTrash, FaArrowLeft, FaXmark, FaEllipsisVertical, FaMagnifyingGlass, FaFilter, FaCalendarDays, FaArrowDownWideShort, FaArrowUpShortWide } from "react-icons/fa6";
 import { FaMapMarkerAlt, FaRegClock } from "react-icons/fa";
 import API_BASE_URL from "../config/api.js";
 import BottomNav from "../component/BottomNav";
@@ -43,6 +43,38 @@ function SkeletonList({ count = 6 }) {
 
 // ─── Helpers ───────────────────────────────────────────
 const JOB_TYPES = ["Full-time", "Part-time", "Internship", "Freelance", "Contract"];
+
+// Date Posted filter — dono tabs (College + External) me common use hota
+// hai, isliye ek hi jagah define kiya taaki dono jagah sync rahe.
+const DATE_FILTERS = [
+  { key: "any", label: "Any time" },
+  { key: "24h", label: "Last 24 hours" },
+  { key: "week", label: "Last 7 days" },
+  { key: "month", label: "Last 30 days" },
+];
+
+// Diya gaya date "dateFilter" window ke andar aata hai ya nahi — date
+// missing/invalid ho to safe default true (job ko hide nahi karte).
+const matchesDateFilter = (dateStr, dateFilter) => {
+  if (dateFilter === "any") return true;
+  if (!dateStr) return true;
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return true;
+  const diffDays = (Date.now() - d.getTime()) / (1000 * 60 * 60 * 24);
+  if (dateFilter === "24h") return diffDays <= 1;
+  if (dateFilter === "week") return diffDays <= 7;
+  if (dateFilter === "month") return diffDays <= 30;
+  return true;
+};
+
+// Sort helper — missing date wale items list ke end me chale jaate hain
+const sortByDate = (list, dateKey, order) => {
+  return [...list].sort((a, b) => {
+    const da = a[dateKey] ? new Date(a[dateKey]).getTime() : 0;
+    const db = b[dateKey] ? new Date(b[dateKey]).getTime() : 0;
+    return order === "oldest" ? da - db : db - da;
+  });
+};
 
 // Agar user "forms.gle/xxx" jaisa bina protocol ka link daale, to browser use
 // current domain ka relative path samajh leta hai. Ye helper protocol ensure
@@ -149,6 +181,73 @@ const SourceTabs = React.memo(function SourceTabs({ source, setSource }) {
         onClick={() => setSource("college")}>College</button>
       <button className={`pc-filter-btn ${source === "external" ? "active" : ""}`}
         onClick={() => setSource("external")}>External</button>
+    </div>
+  );
+});
+
+// ─── Date + Sort Filter Panel (College + External dono par) ────
+// Search bar ke neeche collapsible panel — filter icon click par khulta
+// hai. "Date Posted" dono tabs par kaam karta hai (college -> createdAt,
+// external -> postedAt). Sort aur "Remote only" (sirf External tab par
+// dikhta hai, kyunki college jobs me remote flag hi nahi hota) bhi yahin.
+const FilterPanel = React.memo(function FilterPanel({
+  open, dateFilter, setDateFilter, sortOrder, setSortOrder,
+  showRemoteOption, remoteOnly, setRemoteOnly, onClear, activeCount,
+}) {
+  if (!open) return null;
+  return (
+    <div className="pc-filter-panel">
+      <div className="pc-filter-panel-section">
+        <p className="pc-filter-panel-label"><FaCalendarDays /> Date Posted</p>
+        <div className="pc-filter-panel-pills">
+          {DATE_FILTERS.map(opt => (
+            <button
+              key={opt.key}
+              className={`pc-filter-btn ${dateFilter === opt.key ? "active" : ""}`}
+              onClick={() => setDateFilter(opt.key)}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="pc-filter-panel-section">
+        <p className="pc-filter-panel-label">Sort By</p>
+        <div className="pc-filter-panel-pills">
+          <button
+            className={`pc-filter-btn ${sortOrder === "newest" ? "active" : ""}`}
+            onClick={() => setSortOrder("newest")}
+          >
+            <FaArrowDownWideShort /> Newest first
+          </button>
+          <button
+            className={`pc-filter-btn ${sortOrder === "oldest" ? "active" : ""}`}
+            onClick={() => setSortOrder("oldest")}
+          >
+            <FaArrowUpShortWide /> Oldest first
+          </button>
+        </div>
+      </div>
+
+      {showRemoteOption && (
+        <div className="pc-filter-panel-section">
+          <label className="pc-filter-checkbox">
+            <input
+              type="checkbox"
+              checked={remoteOnly}
+              onChange={(e) => setRemoteOnly(e.target.checked)}
+            />
+            Remote jobs only
+          </label>
+        </div>
+      )}
+
+      {activeCount > 0 && (
+        <button className="pc-filter-panel-clear" onClick={onClear}>
+          Clear Filters ({activeCount})
+        </button>
+      )}
     </div>
   );
 });
@@ -401,6 +500,25 @@ export default function PlacementCell() {
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebounce(searchQuery, 400);
 
+  // ✅ Date + Sort filters — dono tabs (College/External) par kaam karte
+  // hain. Panel toggle karne ke liye showFilters, aur active count badge
+  // ke liye dono values track karte hain.
+  const [showFilters, setShowFilters] = useState(false);
+  const [dateFilter, setDateFilter] = useState("any"); // any | 24h | week | month
+  const [sortOrder, setSortOrder] = useState("newest"); // newest | oldest
+  const [remoteOnly, setRemoteOnly] = useState(false); // External tab only
+
+  const activeFilterCount =
+    (dateFilter !== "any" ? 1 : 0) +
+    (sortOrder !== "newest" ? 1 : 0) +
+    (source === "external" && remoteOnly ? 1 : 0);
+
+  const clearFilters = useCallback(() => {
+    setDateFilter("any");
+    setSortOrder("newest");
+    setRemoteOnly(false);
+  }, []);
+
   // Modals
   const [viewJob, setViewJob] = useState(null);
   const [applyJob, setApplyJob] = useState(null);
@@ -447,7 +565,7 @@ export default function PlacementCell() {
   // Filter badalte hi list top se dobara reveal ho (naya filter = nayi list)
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [filter, searchQuery]);
+  }, [filter, searchQuery, dateFilter, sortOrder]);
 
   // Fetch external (JSearch) jobs — sirf tab "External" ke liye.
   // `mode: "replace"` → naya type/tab select hua, page 1 se shuru karo.
@@ -592,7 +710,7 @@ export default function PlacementCell() {
   // debounce ki wajah se har keystroke par bhi nahi chalti).
   const filtered = useMemo(() => {
     const q = debouncedSearchQuery.trim().toLowerCase();
-    return (filter === "All" ? jobs : jobs.filter(j => j.jobType === filter))
+    const base = (filter === "All" ? jobs : jobs.filter(j => j.jobType === filter))
       .filter(j => {
         if (!q) return true;
         return (
@@ -601,22 +719,30 @@ export default function PlacementCell() {
           j.location?.toLowerCase().includes(q) ||
           j.jobType?.toLowerCase().includes(q)
         );
-      });
-  }, [jobs, filter, debouncedSearchQuery]);
+      })
+      .filter(j => matchesDateFilter(j.createdAt, dateFilter));
+    return sortByDate(base, "createdAt", sortOrder);
+  }, [jobs, filter, debouncedSearchQuery, dateFilter, sortOrder]);
 
   // External tab search: sirf ab tak fetched/loaded jobs par filter hota
   // hai (backend-side search abhi implement nahi hai) — is se pagination
   // ke saath koi conflict nahi hota.
   const filteredExternalJobs = useMemo(() => {
     const q = debouncedSearchQuery.trim().toLowerCase();
-    if (!q) return externalJobs;
-    return externalJobs.filter(j => (
-      j.title?.toLowerCase().includes(q) ||
-      j.company?.toLowerCase().includes(q) ||
-      j.location?.toLowerCase().includes(q) ||
-      j.employmentType?.toLowerCase().includes(q)
-    ));
-  }, [externalJobs, debouncedSearchQuery]);
+    const base = externalJobs
+      .filter(j => {
+        if (!q) return true;
+        return (
+          j.title?.toLowerCase().includes(q) ||
+          j.company?.toLowerCase().includes(q) ||
+          j.location?.toLowerCase().includes(q) ||
+          j.employmentType?.toLowerCase().includes(q)
+        );
+      })
+      .filter(j => matchesDateFilter(j.postedAt, dateFilter))
+      .filter(j => (remoteOnly ? !!j.isRemote : true));
+    return sortByDate(base, "postedAt", sortOrder);
+  }, [externalJobs, debouncedSearchQuery, dateFilter, sortOrder, remoteOnly]);
 
   // ✅ Infinite scroll "load more" handler (College tab) — top-level par
   // define kiya hai (React hook rules ke hisaab se; conditionally JSX ke
@@ -625,7 +751,7 @@ export default function PlacementCell() {
     setVisibleCount(v => Math.min(v + PAGE_SIZE, filtered.length));
   }, [filtered.length]);
 
-  return ( 
+  return (
     <>
       {/* <Navbar toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} /> */}
@@ -665,7 +791,31 @@ export default function PlacementCell() {
               <FaXmark />
             </button>
           )}
+          <button
+            className={`pc-filter-toggle-btn ${activeFilterCount > 0 ? "has-active" : ""} ${showFilters ? "open" : ""}`}
+            onClick={() => setShowFilters(v => !v)}
+            aria-label="Filters"
+          >
+            <FaFilter />
+            {activeFilterCount > 0 && <span className="pc-filter-badge">{activeFilterCount}</span>}
+          </button>
         </div>
+
+        {/* Date / Sort / Remote filter panel — dono tabs (College +
+            External) par same panel use hota hai, sirf "Remote only"
+            option External tab par hi dikhta hai */}
+        <FilterPanel
+          open={showFilters}
+          dateFilter={dateFilter}
+          setDateFilter={setDateFilter}
+          sortOrder={sortOrder}
+          setSortOrder={setSortOrder}
+          showRemoteOption={source === "external"}
+          remoteOnly={remoteOnly}
+          setRemoteOnly={setRemoteOnly}
+          onClear={clearFilters}
+          activeCount={activeFilterCount}
+        />
 
         {source === "college" ? (
           <>
